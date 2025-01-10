@@ -95,11 +95,12 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useToast } from '../composables/useToast';
+import api from '../services/api';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const { showToast } = useToast();
-const loading = ref(true);
+const loading = ref(false);
 
 onMounted(async () => {
   try {
@@ -135,7 +136,28 @@ async function removeItem(productId: number) {
   }
 }
 
-function proceedToCheckout() {
-  router.push('/checkout');
+async function proceedToCheckout() {
+  if (cartStore.cartItems.length === 0) {
+    showToast('Your cart is empty', 'error');
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // First create the order
+    const response = await api.post('/orders/create');
+    const orderId = response.data.id;
+
+    // Navigate to checkout with the order ID
+    await router.push({
+      path: '/checkout',
+      query: {orderId: orderId.toString()}
+    });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    showToast('Failed to proceed to checkout', 'error');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>

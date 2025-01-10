@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^5.5.0",
     "@vueuse/core": "^10.7.0",
     "axios": "^1.7.9",
     "lucide-vue-next": "^0.469.0",

@@ -57,6 +57,20 @@ export const useCartStore = defineStore('cart', () => {
         }
     }
 
+    async function clearCart() {
+        try {
+            // Make API call to clear the cart in the backend
+            await api.post('/cart/clear');
+            // Clear the frontend state
+            cartItems.value = [];
+            total.value = 0;
+            return true;
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+            return false;
+        }
+    }
+
     return {
         cartItems,
         total,
@@ -64,6 +78,7 @@ export const useCartStore = defineStore('cart', () => {
         fetchCart,
         addToCart,
         updateCartItem,
-        removeFromCart
+        removeFromCart,
+        clearCart
     };
 });

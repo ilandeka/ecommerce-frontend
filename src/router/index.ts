@@ -44,6 +44,11 @@ const router = createRouter({
             component: () => import('../views/OrderConfirmationView.vue'),
             meta: { requiresAuth: true }
         },
+        {
+            path: '/payment-success',
+            component: () => import('../views/PaymentSuccessView.vue'),
+            meta: { requiresAuth: true }
+        },
     ],
 });
 

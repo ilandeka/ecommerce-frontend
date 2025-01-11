@@ -95,7 +95,6 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useToast } from '../composables/useToast';
-import api from '../services/api';
 
 const router = useRouter();
 const cartStore = useCartStore();
@@ -144,17 +143,10 @@ async function proceedToCheckout() {
 
   loading.value = true;
   try {
-    // First create the order
-    const response = await api.post('/orders/create');
-    const orderId = response.data.id;
-
-    // Navigate to checkout with the order ID
-    await router.push({
-      path: '/checkout',
-      query: {orderId: orderId.toString()}
-    });
+    // Navigate to checkout
+    await router.push('/checkout');
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('Error proceeding to checkout:', error);
     showToast('Failed to proceed to checkout', 'error');
   } finally {
     loading.value = false;

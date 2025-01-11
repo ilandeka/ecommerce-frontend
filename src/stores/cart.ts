@@ -29,6 +29,7 @@ export const useCartStore = defineStore('cart', () => {
             return true;
         } catch (error) {
             console.error('Error adding to cart:', error);
+
             return false;
         }
     }

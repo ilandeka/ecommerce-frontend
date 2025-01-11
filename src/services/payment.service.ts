@@ -1,9 +1,5 @@
 import api from './api';
-
-export interface PaymentResponse {
-    clientSecret: string;
-    paymentIntentId: string;
-}
+import type { PaymentResponse } from "../types/payment";
 
 export const paymentService = {
     async createPaymentIntent(orderId: number, currency: string = 'USD'): Promise<PaymentResponse> {

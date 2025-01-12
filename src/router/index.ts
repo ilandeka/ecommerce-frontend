@@ -44,6 +44,11 @@ const router = createRouter({
             component: () => import('../views/PaymentSuccessView.vue'),
             meta: { requiresAuth: true }
         },
+        {
+            path: '/profile',
+            component: () => import('../views/ProfileView.vue'),
+            meta: { requiresAuth: true }
+        },
     ],
 });
 

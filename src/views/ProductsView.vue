@@ -4,10 +4,10 @@
     <div class="bg-black py-16">
       <div class="max-w-7xl mx-auto px-4">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-          Our Collection
+          Our Products
         </h1>
         <p class="text-gray-400 text-lg max-w-2xl">
-          Discover our curated selection of premium products designed to elevate your lifestyle.
+          Discover our curated selection of premium products designed to elevate your play.
         </p>
       </div>
     </div>
@@ -21,14 +21,14 @@
               <input
                   type="text"
                   placeholder="Search products..."
-                  class="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:border-night-500 focus:ring-night-500 transition-colors duration-200"
+                  class="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg"
               >
-              <Search class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search class="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             </div>
           </div>
 
           <div class="flex items-center space-x-4">
-            <select class="pl-4 pr-10 py-2 border-2 border-gray-200 rounded-lg focus:border-night-500 focus:ring-night-500 transition-colors duration-200">
+            <select class="pl-4 pr-10 py-2 border-2 border-gray-200 rounded-lg">
               <option value="">Sort by</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
@@ -91,6 +91,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -103,6 +108,7 @@ import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import type { Product } from "../types/product";
+import { Search } from 'lucide-vue-next';
 
 const router = useRouter();
 const loading = ref(true);

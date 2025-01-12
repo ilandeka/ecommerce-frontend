@@ -1,4 +1,3 @@
-<!-- Navbar.vue -->
 <template>
   <nav class="bg-black">
     <div class="max-w-7xl mx-auto px-4">
@@ -63,16 +62,18 @@
           <template v-else>
             <router-link
                 to="/login"
-                class="text-gray-300 hover:text-gold-500 transition-colors duration-200"
+                class="flex items-center space-x-1 text-gray-300 hover:text-gold-500 transition-colors duration-200"
             >
-              Login
+              <LogIn class="w-5 h-5" />
+              <span>Login</span>
             </router-link>
 
             <router-link
                 to="/register"
-                class="bg-night-600 text-white px-4 py-2 rounded-lg hover:bg-night-700 transition-colors duration-200"
+                class="flex items-center space-x-1 bg-night-600 text-white px-4 py-2 rounded-lg hover:bg-night-700 transition-colors duration-200"
             >
-              Register
+              <UserPlus class="w-5 h-5" />
+              <span>Register</span>
             </router-link>
           </template>
         </div>
@@ -82,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShoppingBag, ShoppingCart, User, LogOut } from 'lucide-vue-next';
+import { ShoppingBag, ShoppingCart, User, LogOut, LogIn, UserPlus } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import { useCartStore } from '../stores/cart';
 import { useRouter } from 'vue-router';

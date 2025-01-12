@@ -1,9 +1,14 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
-    <div class="bg-blue-600 text-white py-16">
+    <!-- Hero Section -->
+    <div class="bg-black py-16">
       <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-4xl font-bold mb-4">About E-Shop</h1>
-        <p class="text-xl max-w-2xl">Your trusted destination for quality products and exceptional service.</p>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+          About
+        </h1>
+        <p class="text-gray-400 text-lg max-w-2xl">
+          Your trusted destination for quality products and exceptional service.
+        </p>
       </div>
     </div>
 

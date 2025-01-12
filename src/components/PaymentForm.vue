@@ -26,9 +26,10 @@
     </div>
 
     <!-- Stripe Payment Form -->
-    <form v-if="initialized" id="payment-form" @submit.prevent="handleSubmit">
+    <form id="payment-form" @submit.prevent="handleSubmit">
       <div class="mb-4">
-        <div id="payment-element" class="p-4 border rounded-md"></div>
+        <!-- Add ref to this div -->
+        <div ref="paymentElementRef" class="p-4 border rounded-md"></div>
       </div>
 
       <button
@@ -44,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 import { paymentService } from '../services/payment.service';
@@ -69,11 +70,11 @@ const error = ref('');
 const isLoading = ref(false);
 const stripeLoadError = ref(false);
 const initialized = ref(false);
+const paymentElementRef = ref<HTMLElement | null>(null);
 
 // Function to initialize Stripe and create payment elements
 async function initializeStripe() {
-  // Prevent multiple initialization attempts
-  if (initialized.value || !props.orderId) return;
+  if (initialized.value || !props.orderId || !paymentElementRef.value) return;
 
   try {
     // Check if Stripe.js is loaded (might be blocked by ad blockers)
@@ -102,9 +103,12 @@ async function initializeStripe() {
       },
     });
 
+    // Wait for the next DOM update
+    await nextTick();
+
     // Mount the payment element to the DOM
     const paymentElement = elements.value.create('payment');
-    paymentElement.mount('#payment-element');
+    paymentElement.mount(paymentElementRef.value);
     initialized.value = true;
   } catch (err: any) {
     console.error('Stripe initialization error:', err);
@@ -115,7 +119,14 @@ async function initializeStripe() {
   }
 }
 
-// Watch for changes to the orderId prop
+// Initialize when component mounts AND we have an orderId
+onMounted(() => {
+  if (props.orderId && !initialized.value) {
+    initializeStripe();
+  }
+});
+
+// Watch for changes to orderId prop in case it's not available immediately
 watch(() => props.orderId, async (newOrderId) => {
   if (newOrderId && !initialized.value) {
     await initializeStripe();

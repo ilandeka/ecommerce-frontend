@@ -5,33 +5,39 @@
       <h1 class="text-3xl font-bold mb-8">Checkout</h1>
 
       <!-- Step Indicator -->
-      <div class="mb-8">
-        <div class="flex items-center justify-center">
-          <div class="flex items-center">
-            <div :class="[
-              'rounded-full w-8 h-8 flex items-center justify-center',
-              currentStep === 1 ? 'bg-blue-600 text-white' : (currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600')
-            ]">
-              <CheckCircle v-if="currentStep > 1" class="w-5 h-5" />
-              <span v-else>1</span>
-            </div>
-            <div class="ml-2 text-sm font-medium">Shipping</div>
-            <div class="mx-4 h-1 w-16 bg-gray-200">
+      <div class="mb-12">
+        <div class="max-w-3xl mx-auto">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col items-center">
               <div :class="[
-                'h-full transition-all duration-300',
-                currentStep > 1 ? 'bg-green-500' : 'bg-gray-200'
-              ]"></div>
+                'w-10 h-10 rounded-full flex items-center justify-center border-2',
+                currentStep === 1 ? 'border-gold-500 bg-black text-gold-500' :
+                currentStep > 1 ? 'border-green-500 bg-green-500 text-white' :
+                'border-gray-300 text-gray-400'
+              ]">
+                <Check v-if="currentStep > 1" class="w-6 h-6" />
+                <span v-else>1</span>
+              </div>
+              <span class="mt-2 text-sm font-medium text-gray-900">Shipping</span>
             </div>
-          </div>
 
-          <div class="flex items-center">
-            <div :class="[
-              'rounded-full w-8 h-8 flex items-center justify-center',
-              currentStep === 2 ? 'bg-blue-600 text-white' : (currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600')
-            ]">
-              <span>2</span>
+            <div class="flex-1 h-px bg-gray-200 mx-4">
+              <div :class="[
+                'h-full transition-all duration-500',
+                currentStep > 1 ? 'bg-green-500' : 'bg-gray-200'
+              ]" />
             </div>
-            <div class="ml-2 text-sm font-medium">Payment</div>
+
+            <div class="flex flex-col items-center">
+              <div :class="[
+                'w-10 h-10 rounded-full flex items-center justify-center border-2',
+                currentStep === 2 ? 'border-gold-500 bg-black text-gold-500' :
+                'border-gray-300 text-gray-400'
+              ]">
+                <span>2</span>
+              </div>
+              <span class="mt-2 text-sm font-medium text-gray-900">Payment</span>
+            </div>
           </div>
         </div>
       </div>
@@ -49,7 +55,7 @@
                     v-model="form.fullName"
                     type="text"
                     required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -59,7 +65,7 @@
                     v-model="form.address"
                     type="text"
                     required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -70,7 +76,7 @@
                       v-model="form.city"
                       type="text"
                       required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -79,7 +85,7 @@
                       v-model="form.state"
                       type="text"
                       required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -90,7 +96,7 @@
                     v-model="form.zipCode"
                     type="text"
                     required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400">
@@ -143,7 +149,7 @@
             </div>
             <!-- Shipping Information Summary (when on payment step) -->
             <div v-if="currentStep === 2" class="mt-6 pt-6 border-t border-gray-200">
-              <h3 class="font-medium text-gray-900 mb-2">Shipping To:</h3>
+              <h3 class="font-medium text-gray-900 mb-2">Shipping Address:</h3>
               <div class="text-sm text-gray-600">
                 <p>{{ form.fullName }}</p>
                 <p>{{ form.address }}</p>
@@ -162,9 +168,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useToast } from '../composables/useToast';
-import { CheckCircle } from 'lucide-vue-next';
 import PaymentForm from '../components/PaymentForm.vue';
 import api from '../services/api';
+import { Check } from 'lucide-vue-next';
 
 const router = useRouter();
 const cartStore = useCartStore();

@@ -55,7 +55,7 @@
                     v-model="form.fullName"
                     type="text"
                     required
-                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 pl-2 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -65,7 +65,7 @@
                     v-model="form.address"
                     type="text"
                     required
-                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 pl-2 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -76,7 +76,7 @@
                       v-model="form.city"
                       type="text"
                       required
-                      class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      class="mt-1 pl-2 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -85,7 +85,7 @@
                       v-model="form.state"
                       type="text"
                       required
-                      class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      class="mt-1 pl-2 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -96,7 +96,7 @@
                     v-model="form.zipCode"
                     type="text"
                     required
-                    class="mt-1 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    class="mt-1 pl-2 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400">

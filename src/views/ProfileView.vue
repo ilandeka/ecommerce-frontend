@@ -45,6 +45,19 @@
             >
               Account Settings
             </button>
+            <!-- Admin Tab - Only show if user is admin -->
+            <button
+                v-if="isAdmin"
+                @click="activeTab = 'admin'"
+                :class="[
+              'py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
+              activeTab === 'admin'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+            ]"
+            >
+              Admin Dashboard
+            </button>
           </nav>
         </div>
       </div>
@@ -186,7 +199,7 @@
                 v-model="passwordForm.currentPassword"
                 type="password"
                 required
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
                      focus:ring-primary-500 focus:border-primary-500 transition-colors"
             />
           </div>
@@ -198,7 +211,7 @@
                 type="password"
                 required
                 minlength="8"
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
                      focus:ring-primary-500 focus:border-primary-500 transition-colors"
             />
           </div>
@@ -210,7 +223,7 @@
                 type="password"
                 required
                 minlength="8"
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
                      focus:ring-primary-500 focus:border-primary-500 transition-colors"
             />
           </div>
@@ -230,18 +243,130 @@
           </button>
         </form>
       </div>
+
+      <!-- Admin Dashboard Tab -->
+      <div v-if="activeTab === 'admin'" class="space-y-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-neutral-900 mb-4">Product Management</h3>
+          <button
+              @click="showProductModal = true"
+              class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
+                 hover:bg-primary-700 transition-colors"
+          >
+            <Plus class="w-5 h-5 mr-2" />
+            Add New Product
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Modal -->
+      <Modal v-if="showProductModal" @close="showProductModal = false">
+        <div class="p-6">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6">Add New Product</h2>
+
+          <form @submit.prevent="handleProductSubmit" class="space-y-6">
+            <ImageUpload
+                v-model="productImage"
+                default-image="/images/default-product.jpg"
+                :alt="productForm.name"
+            />
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700">Product Name</label>
+                <input
+                    v-model="productForm.name"
+                    type="text"
+                    required
+                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                       focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700">Product Description</label>
+                <input
+                    v-model="productForm.description"
+                    type="text"
+                    required
+                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                       focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700">Product Price</label>
+                <input
+                    v-model="productForm.price"
+                    type="text"
+                    required
+                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                       focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700">Product Stock</label>
+                <input
+                    v-model="productForm.stockQuantity"
+                    type="text"
+                    required
+                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                       focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700">Product Available</label>
+                <input
+                    v-model="productForm.available"
+                    type="text"
+                    required
+                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-neutral-300 shadow-sm
+                       focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+              <button
+                  type="button"
+                  @click="showProductModal = false"
+                  class="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700
+                     hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
+              <button
+                  type="submit"
+                  :disabled="submitting"
+                  class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700
+                     disabled:bg-neutral-300"
+              >
+                {{ submitting ? 'Creating...' : 'Create Product' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { User, Package, Loader2, ArrowUp, ArrowDown } from 'lucide-vue-next';
-import { useToast } from '../composables/useToast';
-import { orderService } from '../services/order.service';
-import type { Order } from '../types/order';
-import { profileService } from '../services/profile.service';
+import {computed, onMounted, ref, watch} from 'vue';
+import {ArrowDown, ArrowUp, Loader2, Package, Plus, User} from 'lucide-vue-next';
+import {useToast} from '../composables/useToast';
+import {useAuthStore} from '../stores/auth';
+import {orderService} from '../services/order.service';
+import {profileService} from '../services/profile.service';
+import api from '../services/api';
+import ImageUpload from '../components/ImageUpload.vue';
+import Modal from '../components/Modal.vue';
+import type {Order} from '../types/order';
 
+const authStore = useAuthStore();
+const { showToast } = useToast();
+
+const showProductModal = ref(false);
+const productImage = ref<File | null>(null);
+const submitting = ref(false);
 const activeTab = ref('orders');
 const loading = ref(false);
 const orders = ref<Order[]>([]);
@@ -251,7 +376,6 @@ const currentPage = ref(0);
 const totalPages = ref(0);
 const sortField = ref('createdAt');
 const sortDirection = ref<'asc' | 'desc'>('desc');
-const { showToast } = useToast();
 
 interface Profile {
   fullName: string;
@@ -269,6 +393,52 @@ const passwordForm = ref<PasswordForm>({
   newPassword: '',
   confirmPassword: ''
 });
+
+const productForm = ref({
+  name: '',
+  description: '',
+  price: '',
+  stockQuantity: '',
+  available: true
+});
+
+// Compute if user is admin
+const isAdmin = computed(() => {
+  return authStore.hasRole('ROLE_ADMIN');
+});
+
+async function handleProductSubmit() {
+  submitting.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('product', JSON.stringify(productForm.value));
+    if (productImage.value) {
+      formData.append('image', productImage.value);
+    }
+
+    await api.post('/products', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    showToast('Product created successfully', 'success');
+    showProductModal.value = false;
+    // Reset form
+    productForm.value = {
+      name: '',
+      description: '',
+      price: '',
+      stockQuantity: '',
+      available: true
+    };
+    productImage.value = null;
+  } catch (error) {
+    showToast('Failed to create product', 'error');
+  } finally {
+    submitting.value = false;
+  }
+}
 
 // Function to fetch profile data
 async function fetchProfile() {

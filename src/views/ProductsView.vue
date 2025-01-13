@@ -56,10 +56,12 @@
           <!-- Product Image -->
           <div class="aspect-w-1 aspect-h-1 bg-neutral-100 relative overflow-hidden">
             <img
-                :src="product.imageUrl || '/images/default-product.jpg'"
+                :src="product.imageUrl || '/static/images/default-product.jpg'"
                 :alt="product.name"
-                class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-            >
+                class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500"
+
+            />
+
             <!-- Status Badge -->
             <div
                 v-if="!product.available"
@@ -170,6 +172,12 @@ async function addToCart(product: Product) {
   } finally {
     isAddingToCart[product.id] = false;
   }
+}
+
+function handleImageError(event: Event) {
+  // If the image fails to load, fallback to default
+  const img = event.target as HTMLImageElement;
+  img.src = '/images/default-product.jpg';
 }
 </script>
 

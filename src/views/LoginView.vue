@@ -1,72 +1,73 @@
 <template>
-  <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full mx-auto space-y-8 bg-white rounded-2xl shadow-xl p-8">
-      <!-- Logo/Brand Section -->
-      <div class="text-center">
-        <div class="flex justify-center">
-          <ShoppingBag class="w-12 h-12 text-gold-500" />
+  <div class="min-h-screen bg-neutral-50 py-12 px-4">
+    <div class="max-w-md mx-auto">
+      <div class="bg-white rounded-xl shadow-sm p-8">
+        <div class="text-center mb-8">
+          <ShoppingBag class="w-12 h-12 text-primary-600 mx-auto" />
+          <h2 class="mt-4 text-3xl font-bold text-neutral-900">Welcome back</h2>
+          <p class="mt-2 text-neutral-600">
+            Don't have an account?
+            <router-link to="/register" class="text-primary-600 hover:text-primary-500">
+              Sign up
+            </router-link>
+          </p>
         </div>
-        <h2 class="mt-4 text-3xl font-extrabold text-gray-900">Welcome back</h2>
-        <p class="mt-2 text-sm text-gray-600">
-          Don't have an account?
-          <router-link to="/register" class="font-medium text-night-600 hover:text-night-500 transition-colors duration-200">
-            Sign up
-          </router-link>
-        </p>
-      </div>
 
-      <form @submit.prevent="handleSubmit" class="mt-8 space-y-6">
-        <div class="space-y-4">
+        <form @submit.prevent="handleSubmit" class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <label class="block text-sm font-medium text-neutral-700">Email</label>
             <div class="mt-1 relative">
-              <Mail class="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Mail class="absolute left-3 top-3 h-5 w-5 text-neutral-400" />
               <input
                   v-model="form.email"
                   type="email"
                   required
-                  class="pl-10 block w-full py-2 border-2 border-gray-200 rounded-lg focus:ring-night-500 focus:border-night-500 transition-colors duration-200"
+                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
+                      focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <label class="block text-sm font-medium text-neutral-700">Password</label>
             <div class="mt-1 relative">
-              <Lock class="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Lock class="absolute left-3 top-3 h-5 w-5 text-neutral-400" />
               <input
                   v-model="form.password"
                   type="password"
                   required
-                  class="pl-10 block w-full py-2 border-2 border-gray-200 rounded-lg focus:ring-night-500 focus:border-night-500 transition-colors duration-200"
+                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
+                      focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
-        </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-                type="checkbox"
-                class="h-4 w-4 text-night-600 focus:ring-night-500 border-gray-300 rounded"
-            />
-            <label class="ml-2 block text-sm text-gray-900">Remember me</label>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                  type="checkbox"
+                  class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              />
+              <label class="ml-2 block text-sm text-gray-900">Remember me</label>
+            </div>
+
+            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+              Forgot password?
+            </a>
           </div>
 
-          <a href="#" class="text-sm font-medium text-night-600 hover:text-night-500">
-            Forgot password?
-          </a>
-        </div>
-
-        <button
-            type="submit"
-            :disabled="loading"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-night-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-colors duration-200"
-        >
-          <Loader2 v-if="loading" class="animate-spin h-5 w-5" />
-          <span v-else>Sign in</span>
-        </button>
-      </form>
+          <button
+              type="submit"
+              :disabled="loading"
+              class="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700
+                  transition-colors duration-200 disabled:bg-neutral-300
+                  flex items-center justify-center space-x-2"
+          >
+            <Loader2 v-if="loading" class="animate-spin h-5 w-5" />
+            <span>{{ loading ? 'Signing in...' : 'Sign in' }}</span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>

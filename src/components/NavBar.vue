@@ -65,16 +65,18 @@
           <template v-else>
             <router-link
                 to="/login"
-                class="text-neutral-100 hover:text-primary-300 transition-colors duration-200"
+                class="group flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-primary-800 transition-all duration-200"
             >
-              Login
+              <LogIn class="w-5 h-5" />
+              <span>Login</span>
             </router-link>
 
             <router-link
                 to="/register"
-                class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                class="flex items-center space-x-2 px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-all duration-200"
             >
-              Register
+              <UserPlus class="w-5 h-5" />
+              <span>Sign Up</span>
             </router-link>
           </template>
         </div>
@@ -84,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShoppingBag, ShoppingCart, User, LogOut, Package, Info } from 'lucide-vue-next';
+import { ShoppingBag, ShoppingCart, User, LogOut, Package, Info, UserPlus, LogIn } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import { useCartStore } from '../stores/cart';
 import { useRouter } from 'vue-router';

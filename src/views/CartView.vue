@@ -28,7 +28,7 @@
               <!-- Cart item content -->
               <div class="flex items-center space-x-6">
                 <img
-                    :src="item.imageUrl || 'placeholder.jpg'"
+                    :src="item.imageUrl || 'images/default-product.jpg'"
                     :alt="item.productName"
                     class="w-24 h-24 object-cover rounded-lg"
                 >
@@ -99,7 +99,7 @@
                 :disabled="!cartStore.cartItems.length"
                 class="w-full mt-6 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700
                      disabled:bg-neutral-300 disabled:text-neutral-500 transition-colors duration-200
-                     font-medium flex items-center justify-center space-x-2"
+                     flex items-center justify-center space-x-2"
             >
               <ShoppingCart class="w-5 h-5" />
               <span>Proceed to Checkout</span>

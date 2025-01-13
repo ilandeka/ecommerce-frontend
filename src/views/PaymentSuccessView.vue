@@ -15,7 +15,7 @@
           </p>
           <router-link
               to="/products"
-              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              class="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700"
           >
             Continue Shopping
           </router-link>

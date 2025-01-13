@@ -1,6 +1,7 @@
 export interface User {
     email: string;
     fullName: string;
+    roles: string[];
 }
 
 export interface LoginRequest {
@@ -18,4 +19,5 @@ export interface AuthResponse {
     tokenType: "Bearer";
     email: string;
     fullName: string;
+    roles: string[] | string;
 }

@@ -21,13 +21,6 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="!initialized && !error"
-         class="flex flex-col items-center justify-center py-8 space-y-4">
-      <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
-      <p class="text-neutral-600">Initializing payment form...</p>
-    </div>
-
     <!-- Payment Security Notice -->
     <div class="mb-6 p-4 bg-primary-50 rounded-lg">
       <div class="flex items-start">
@@ -41,12 +34,17 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex justify-center py-8">
+      <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
+    </div>
+
     <!-- Stripe Payment Form -->
-    <form id="payment-form" @submit.prevent="handleSubmit">
+    <form v-show="!isLoading" id="payment-form" @submit.prevent="handleSubmit">
       <!-- Payment Element Container -->
       <div class="mb-6">
         <div ref="paymentElementRef"
-             class="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 transition-colors">
+             class="p-4 border-2 border-neutral-200 rounded-lg">
         </div>
       </div>
 
@@ -68,7 +66,7 @@
       >
         <Lock v-if="!isLoading" class="w-5 h-5" />
         <Loader2 v-else class="w-5 h-5 animate-spin" />
-        <span class="font-medium">{{ isLoading ? 'Processing...' : 'Pay Securely' }}</span>
+        <span>{{ isLoading ? 'Processing...' : 'Pay Securely' }}</span>
       </button>
 
       <!-- Payment Methods Accepted -->
@@ -82,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 import { useCartStore } from '../stores/cart';
@@ -106,19 +104,16 @@ const cartStore = useCartStore();
 const stripe = ref<any>(null);
 const elements = ref<any>(null);
 const error = ref('');
-const isLoading = ref(false);
+const isLoading = ref(true);
 const stripeLoadError = ref(false);
-const initialized = ref(false);
 const paymentElementRef = ref<HTMLElement | null>(null);
 
 // Function to initialize Stripe and create payment elements
 async function initializeStripe() {
-  if (initialized.value || !props.orderId || !paymentElementRef.value) return;
-
   try {
     // Check if Stripe.js is loaded (might be blocked by ad blockers)
     const stripeJs = (window as any).Stripe;
-    if (!stripeJs) {
+    if (!stripeJs || !props.orderId) {
       showToast('Stripe.js failed to load. Please disable ad blockers for this site.','error');
     }
 
@@ -149,30 +144,23 @@ async function initializeStripe() {
     // Mount the payment element to the DOM
     const paymentElement = elements.value.create('payment');
     paymentElement.mount(paymentElementRef.value);
-    initialized.value = true;
   } catch (err: any) {
     console.error('Stripe initialization error:', err);
     stripeLoadError.value = true;
     error.value = err.message || 'Failed to initialize payment form';
     showToast(error.value, 'error');
     emit('paymentError', err);
+  } finally {
+    isLoading.value = false;
   }
 }
 
 // Initialize when component mounts AND we have an orderId
 onMounted(() => {
-  if (props.orderId && !initialized.value) {
+  if (props.orderId) {
     initializeStripe();
   }
 });
-
-// Watch for changes to orderId prop in case it's not available immediately
-// Initialize Stripe only after we have a valid orderId
-watch(() => props.orderId, async (newOrderId) => {
-  if (newOrderId && !initialized.value) {
-    await initializeStripe();
-  }
-}, { immediate: true });
 
 // Handle form submission and payment processing
 async function handleSubmit() {

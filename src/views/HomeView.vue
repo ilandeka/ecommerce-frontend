@@ -1,20 +1,22 @@
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen bg-neutral-50">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-      <div class="max-w-7xl mx-auto px-4 py-20">
+    <div class="relative bg-primary-800 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 py-24">
         <div class="text-center">
-          <h1 class="text-5xl font-bold mb-6">
-            Welcome to E-Shop
+          <h1 class="text-5xl font-bold text-white mb-6">
+            Shop with Confidence
           </h1>
-          <p class="text-xl mb-8 max-w-2xl mx-auto">
-            Discover our curated collection of premium products designed to enhance your lifestyle
+          <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+            Discover our curated collection of premium products designed to enhance your lifestyle.
           </p>
           <router-link
               to="/products"
-              class="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300"
+              class="inline-flex items-center px-8 py-3 rounded-lg bg-white text-primary-600
+                  hover:bg-primary-50 transition duration-300 space-x-2"
           >
-            Shop Now
+            <span class="font-semibold">Explore Products</span>
+            <ArrowRight class="w-5 h-5" />
           </router-link>
         </div>
       </div>
@@ -23,34 +25,28 @@
     <!-- Features Section -->
     <div class="max-w-7xl mx-auto px-4 py-16">
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-          <div class="text-blue-600 mb-4">
-            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Fast Shipping</h3>
-          <p class="text-gray-600">Get your products delivered quickly and securely with our premium shipping service.</p>
+        <div class="bg-white p-8 rounded-xl shadow-sm">
+          <Truck class="w-12 h-12 text-primary-600 mb-4" />
+          <h3 class="text-xl font-semibold mb-2 text-neutral-900">Fast Shipping</h3>
+          <p class="text-neutral-600">Get your items delivered quickly with our secure shipping service.</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-          <div class="text-blue-600 mb-4">
-            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Quality Guarantee</h3>
-          <p class="text-gray-600">Every product is carefully selected and quality-checked to ensure your satisfaction.</p>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm">
+          <Shield class="w-12 h-12 text-primary-600 mb-4" />
+          <h3 class="text-xl font-semibold mb-2 text-neutral-900">Secure Payments</h3>
+          <p class="text-neutral-600">Shop with confidence using our encrypted payment system.</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-          <div class="text-blue-600 mb-4">
-            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Easy Returns</h3>
-          <p class="text-gray-600">Not satisfied? Return your purchase within 30 days for a full refund.</p>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm">
+          <Headphones class="w-12 h-12 text-primary-600 mb-4" />
+          <h3 class="text-xl font-semibold mb-2 text-neutral-900">24/7 Support</h3>
+          <p class="text-neutral-600">Our customer service team is always here to help you.</p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ArrowRight, Truck, Shield, Headphones } from 'lucide-vue-next';
+</script>

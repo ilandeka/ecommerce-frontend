@@ -1,17 +1,18 @@
-<!-- src/components/PaymentForm.vue -->
 <template>
   <div class="w-full">
     <!-- Error Display Section -->
-    <div v-if="error" class="text-red-500 mb-4">
-      {{ error }}
+    <div v-if="error" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+      <div class="flex">
+        <AlertCircle class="w-5 h-5 text-red-500 mr-3" />
+        <p class="text-red-800">{{ error }}</p>
+      </div>
     </div>
 
     <!-- Ad Blocker Warning -->
-    <div v-if="stripeLoadError" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+    <div v-if="stripeLoadError"
+         class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-r-lg">
       <div class="flex">
-        <div class="flex-shrink-0">
-          <AlertTriangle class="h-5 w-5 text-yellow-400" />
-        </div>
+        <AlertTriangle class="h-5 w-5 text-yellow-400 mr-3" />
         <div class="ml-3">
           <p class="text-sm text-yellow-700">
             Unable to load payment form. Please disable ad blockers for this site to complete your purchase.
@@ -21,35 +22,72 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="!initialized && !error" class="flex justify-center py-4">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <div v-if="!initialized && !error"
+         class="flex flex-col items-center justify-center py-8 space-y-4">
+      <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
+      <p class="text-neutral-600">Initializing payment form...</p>
+    </div>
+
+    <!-- Payment Security Notice -->
+    <div class="mb-6 p-4 bg-primary-50 rounded-lg">
+      <div class="flex items-start">
+        <Lock class="w-5 h-5 text-primary-600 mt-0.5 mr-3" />
+        <div>
+          <p class="text-sm text-primary-800 font-medium mb-1">Secure Payment</p>
+          <p class="text-sm text-primary-600">
+            Your payment information is encrypted and secure. We never store your card details.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Stripe Payment Form -->
     <form id="payment-form" @submit.prevent="handleSubmit">
-      <div class="mb-4">
-        <!-- Add ref to this div -->
-        <div ref="paymentElementRef" class="p-4 border rounded-md"></div>
+      <!-- Payment Element Container -->
+      <div class="mb-6">
+        <div ref="paymentElementRef"
+             class="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 transition-colors">
+        </div>
       </div>
 
+      <!-- Payment Total -->
+      <div class="mb-6 p-4 bg-neutral-50 rounded-lg">
+        <div class="flex justify-between items-center">
+          <span class="text-neutral-700">Total to pay:</span>
+          <span class="text-2xl font-bold text-primary-600">${{ cartStore.total }}</span>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
       <button
           type="submit"
           :disabled="isLoading || !stripe || !elements"
-          class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          class="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700
+               transition-colors duration-200 disabled:bg-neutral-300 disabled:cursor-not-allowed
+               flex items-center justify-center space-x-3"
       >
-        <span v-if="isLoading">Processing...</span>
-        <span v-else>Pay Now</span>
+        <Lock v-if="!isLoading" class="w-5 h-5" />
+        <Loader2 v-else class="w-5 h-5 animate-spin" />
+        <span class="font-medium">{{ isLoading ? 'Processing...' : 'Pay Securely' }}</span>
       </button>
+
+      <!-- Payment Methods Accepted -->
+      <div class="mt-6 flex items-center justify-center space-x-4">
+        <img src="" alt="Visa" class="h-8 opacity-75" />
+        <img src="" alt="Mastercard" class="h-8 opacity-75" />
+        <img src="" alt="American Express" class="h-8 opacity-75" />
+      </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
+import { useCartStore } from '../stores/cart';
 import { paymentService } from '../services/payment.service';
-import { AlertTriangle } from 'lucide-vue-next';
+import { AlertTriangle, AlertCircle, Lock, Loader2 } from 'lucide-vue-next';
 
 // Define props with TypeScript - orderId is required and must be a number
 const props = defineProps<{
@@ -62,6 +100,7 @@ const emit = defineEmits(['paymentSuccess', 'paymentError']);
 // Initialize component dependencies
 const router = useRouter();
 const { showToast } = useToast();
+const cartStore = useCartStore();
 
 // Component state management
 const stripe = ref<any>(null);
@@ -98,13 +137,14 @@ async function initializeStripe() {
       appearance: {
         theme: 'stripe',
         variables: {
-          colorPrimary: '#2563eb',
+          colorPrimary: '#0ea5e9', // primary-600
+          colorBackground: '#ffffff',
+          colorText: '#171717', // neutral-900
+          colorDanger: '#ef4444', // red-500
+          borderRadius: '8px',
         },
       },
     });
-
-    // Wait for the next DOM update
-    await nextTick();
 
     // Mount the payment element to the DOM
     const paymentElement = elements.value.create('payment');
@@ -127,6 +167,7 @@ onMounted(() => {
 });
 
 // Watch for changes to orderId prop in case it's not available immediately
+// Initialize Stripe only after we have a valid orderId
 watch(() => props.orderId, async (newOrderId) => {
   if (newOrderId && !initialized.value) {
     await initializeStripe();

@@ -1,12 +1,12 @@
 <template>
   <div class="bg-gray-100 min-h-screen">
     <!-- Hero Section -->
-    <div class="bg-black py-16">
+    <div class="bg-gradient-to-r from-primary-900 to-primary-800 py-16">
       <div class="max-w-7xl mx-auto px-4">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-          About
+          About Us
         </h1>
-        <p class="text-gray-400 text-lg max-w-2xl">
+        <p class="text-primary-100 text-lg max-w-2xl">
           Your trusted destination for quality products and exceptional service.
         </p>
       </div>

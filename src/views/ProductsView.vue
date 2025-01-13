@@ -1,37 +1,43 @@
 <template>
-  <div class="bg-gray-50 min-h-screen">
+  <div class="min-h-screen bg-neutral-50">
     <!-- Hero Section -->
-    <div class="bg-black py-16">
+    <div class="bg-gradient-to-r from-primary-900 to-primary-800 py-16">
       <div class="max-w-7xl mx-auto px-4">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-          Our Products
+          Our Collection
         </h1>
-        <p class="text-gray-400 text-lg max-w-2xl">
-          Discover our curated selection of premium products designed to elevate your play.
+        <p class="text-primary-100 text-lg max-w-2xl">
+          Discover our curated selection of premium products designed to enhance your lifestyle.
         </p>
       </div>
     </div>
 
     <!-- Filters Section -->
-    <div class="bg-white border-b border-gray-200">
+    <div class="sticky top-0 bg-white border-b border-neutral-200 z-10 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
+          <!-- Search -->
           <div class="flex-1 min-w-[280px]">
             <div class="relative">
               <input
                   type="text"
                   placeholder="Search products..."
-                  class="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg"
+                  class="w-full pl-10 pr-4 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200"
               >
-              <Search class="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Search class="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
             </div>
           </div>
 
+          <!-- Sort Options -->
           <div class="flex items-center space-x-4">
-            <select class="pl-4 pr-10 py-2 border-2 border-gray-200 rounded-lg">
-              <option value="">Sort by</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
+            <select
+                v-model="sortField"
+                @change="handleSortChange"
+                class="pl-4 pr-10 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200"
+            >
+              <option value="createdAt">Latest</option>
+              <option value="price">Price</option>
+              <option value="name">Name</option>
             </select>
           </div>
         </div>
@@ -40,51 +46,54 @@
 
     <!-- Products Grid -->
     <div class="max-w-7xl mx-auto px-4 py-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Product Card -->
         <div
             v-for="product in products"
             :key="product.id"
-            class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
+            class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
         >
-          <div class="aspect-w-1 aspect-h-1 bg-gray-200 relative overflow-hidden">
+          <!-- Product Image -->
+          <div class="aspect-w-1 aspect-h-1 bg-neutral-100 relative overflow-hidden">
             <img
-                :src="product.imageUrl || 'https://via.placeholder.com/300'"
+                :src="product.imageUrl || '/images/default-product.jpg'"
                 :alt="product.name"
-                class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
             >
+            <!-- Status Badge -->
             <div
                 v-if="!product.available"
-                class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                class="absolute top-4 right-4 px-3 py-1 bg-neutral-900/80 text-white text-sm font-medium rounded-full"
             >
-              <span class="text-white font-semibold px-4 py-2 bg-black bg-opacity-75 rounded">
-                Out of Stock
-              </span>
+              Out of Stock
             </div>
           </div>
 
-          <div class="p-4">
-            <h2 class="text-xl font-semibold mb-2 text-gray-900">{{ product.name }}</h2>
-            <p class="text-gray-600 mb-4 line-clamp-2">{{ product.description }}</p>
+          <!-- Product Info -->
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="mb-4 flex-grow">
+              <h2 class="text-lg font-semibold text-neutral-900 mb-2">{{ product.name }}</h2>
+              <p class="text-neutral-600 text-sm line-clamp-2">{{ product.description }}</p>
+            </div>
 
-            <div class="flex items-end justify-between">
-              <span class="text-2xl font-bold text-night-600">${{ product.price }}</span>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <p class="text-2xl font-bold text-primary-700">${{ product.price }}</p>
+                <p v-if="product.available" class="text-sm text-neutral-500">In Stock</p>
+              </div>
 
               <div class="flex items-center space-x-2">
-                <input
-                    v-if="product.available"
-                    type="number"
-                    v-model="quantities[product.id]"
-                    min="1"
-                    max="99"
-                    class="w-16 px-2 py-1 border-2 border-gray-200 rounded focus:border-night-500 focus:ring-night-500"
-                >
                 <button
                     v-if="product.available"
                     @click="addToCart(product)"
                     :disabled="isAddingToCart[product.id]"
-                    class="bg-black text-gold-500 px-4 py-2 rounded-lg hover:bg-night-900 transition-colors duration-200 disabled:bg-gray-300 disabled:text-gray-500"
+                    class="flex-grow bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700
+                   transition-colors duration-200 disabled:bg-neutral-300
+                   disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  {{ isAddingToCart[product.id] ? 'Adding...' : 'Add to Cart' }}
+                  <ShoppingCart v-if="!isAddingToCart[product.id]" class="w-4 h-4" />
+                  <Loader2 v-else class="w-4 h-4 animate-spin" />
+                  <span>{{ isAddingToCart[product.id] ? 'Adding...' : 'Add to Cart' }}</span>
                 </button>
               </div>
             </div>
@@ -93,8 +102,8 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div v-if="loading" class="flex justify-center py-12">
+        <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
       </div>
     </div>
   </div>
@@ -108,7 +117,7 @@ import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import type { Product } from "../types/product";
-import { Search } from 'lucide-vue-next';
+import { Search, Loader2, ShoppingCart } from 'lucide-vue-next';
 
 const router = useRouter();
 const loading = ref(true);
@@ -118,6 +127,14 @@ const authStore = useAuthStore();
 const products = ref<Product[]>([]);
 const quantities: { [key: number]: number } = reactive({});
 const isAddingToCart: { [key: number]: boolean } = reactive({});
+// Yet to implement
+const sortField = ref('createdAt');
+
+// IMPLEMENT: Function to handle sort field changes
+function handleSortChange() {
+  //currentPage.value = 0; // Reset to first page when sorting changes
+  //fetchOrders();
+}
 
 onMounted(async () => {
   try {

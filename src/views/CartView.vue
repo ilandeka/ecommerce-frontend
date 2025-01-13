@@ -1,31 +1,31 @@
 <template>
-  <div class="bg-gray-50 min-h-screen py-8">
+  <div class="bg-neutral-50 min-h-screen py-8">
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-        <span class="text-night-600 font-medium">{{ cartStore.cartItems.length }} items</span>
+        <h1 class="text-3xl font-bold text-neutral-900">Shopping Cart</h1>
+        <span class="text-primary-600 font-medium">{{ cartStore.cartItems.length }} items</span>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Cart Items -->
         <div class="lg:col-span-2">
-          <div v-if="cartStore.cartItems.length === 0" class="bg-white rounded-2xl p-8 text-center shadow-sm">
-            <ShoppingBag class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p class="text-gray-600 mb-4">Your cart is empty</p>
+          <div v-if="cartStore.cartItems.length === 0"
+               class="bg-white rounded-xl p-8 text-center shadow-sm">
+            <ShoppingBag class="w-16 h-16 text-neutral-400 mx-auto mb-4" />
+            <p class="text-neutral-600 mb-4">Your cart is empty</p>
             <router-link
                 to="/products"
-                class="inline-flex items-center px-6 py-3 border-2 border-night-600 text-night-600 rounded-lg hover:bg-night-600 hover:text-white transition-colors duration-200"
+                class="inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-600 hover:text-white transition-colors duration-200"
             >
               Continue Shopping
             </router-link>
           </div>
 
           <div v-else class="space-y-4">
-            <div
-                v-for="item in cartStore.cartItems"
-                :key="item.productId"
-                class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
-            >
+            <div v-for="item in cartStore.cartItems"
+                 :key="item.productId"
+                 class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <!-- Cart item content -->
               <div class="flex items-center space-x-6">
                 <img
                     :src="item.imageUrl || 'placeholder.jpg'"
@@ -73,33 +73,36 @@
         </div>
 
         <!-- Order Summary -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 h-fit">
-          <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+        <div class="bg-white rounded-xl shadow-sm p-6 h-fit lg:sticky lg:top-8">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6">Order Summary</h2>
 
           <div class="space-y-4">
-            <div class="flex justify-between text-gray-600">
+            <div class="flex justify-between text-neutral-600">
               <span>Subtotal</span>
               <span>${{ cartStore.total }}</span>
             </div>
 
-            <div class="flex justify-between text-gray-600">
+            <div class="flex justify-between text-neutral-600">
               <span>Shipping</span>
-              <span class="text-green-600">Free</span>
+              <span class="text-accent-600">Free</span>
             </div>
 
-            <div class="border-t border-gray-200 pt-4 mt-4">
+            <div class="border-t border-neutral-200 pt-4 mt-4">
               <div class="flex justify-between items-center">
-                <span class="text-lg font-bold text-gray-900">Total</span>
-                <span class="text-2xl font-bold text-night-600">${{ cartStore.total }}</span>
+                <span class="text-lg font-bold text-neutral-900">Total</span>
+                <span class="text-2xl font-bold text-primary-600">${{ cartStore.total }}</span>
               </div>
             </div>
 
             <button
                 @click="proceedToCheckout"
                 :disabled="!cartStore.cartItems.length"
-                class="w-full mt-6 bg-black text-gold-500 py-3 rounded-lg hover:bg-night-900 disabled:bg-gray-200 disabled:text-gray-400 transition-colors duration-200 font-medium"
+                class="w-full mt-6 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700
+                     disabled:bg-neutral-300 disabled:text-neutral-500 transition-colors duration-200
+                     font-medium flex items-center justify-center space-x-2"
             >
-              Proceed to Checkout
+              <ShoppingCart class="w-5 h-5" />
+              <span>Proceed to Checkout</span>
             </button>
           </div>
         </div>
@@ -113,7 +116,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useToast } from '../composables/useToast';
-import { ShoppingBag, Minus, Plus } from 'lucide-vue-next';
+import { ShoppingBag, Minus, Plus, ShoppingCart } from 'lucide-vue-next';
 
 const router = useRouter();
 const cartStore = useCartStore();

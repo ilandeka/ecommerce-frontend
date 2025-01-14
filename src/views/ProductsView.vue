@@ -20,11 +20,27 @@
           <div class="flex-1 min-w-[280px]">
             <div class="relative">
               <input
+                  v-model="searchTerm"
+                  @input="handleSearch"
                   type="text"
                   placeholder="Search products..."
-                  class="w-full pl-10 pr-4 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200"
+                  class="w-full pl-10 pr-4 py-2 border-2 border-neutral-200 rounded-lg
+                   focus:border-primary-500 focus:ring-primary-500
+                   transition-colors duration-200"
               >
-              <Search class="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+              <Search class="absolute left-3 top-3 h-5 w-5 text-neutral-400" />
+
+              <!-- Add loading indicator for search -->
+              <div v-if="loading"
+                   class="absolute right-3 top-2.5">
+                <Loader2 class="h-5 w-5 animate-spin text-primary-500" />
+              </div>
+            </div>
+
+            <!-- Add no results message -->
+            <div v-if="!loading && products.length === 0"
+                 class="absolute text-center py-12 text-neutral-500">
+              No products found for "{{ searchTerm }}"
             </div>
           </div>
 
@@ -39,6 +55,17 @@
               <option value="price">Price</option>
               <option value="name">Name</option>
             </select>
+
+            <!-- Add sort direction toggle button -->
+            <button
+                @click="toggleSortDirection"
+                class="p-2 border-2 border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors duration-200
+           flex items-center justify-center"
+                :title="sortDir === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
+            >
+              <ArrowUp v-if="sortDir === 'asc'" class="h-5 w-5" />
+              <ArrowDown v-else class="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -108,6 +135,49 @@
         <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
       </div>
     </div>
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="my-6 flex justify-center">
+      <nav class="flex items-center gap-2">
+        <!-- Previous button -->
+        <button
+            @click="previousPage"
+            :disabled="currentPage === 0"
+            class="px-3 py-2 rounded-lg border-2 border-neutral-200
+             disabled:opacity-50 disabled:cursor-not-allowed
+             hover:border-primary-500 transition-colors"
+        >
+          Previous
+        </button>
+
+        <!-- Page numbers -->
+        <div class="flex gap-2">
+          <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="goToPage(page - 1)"
+              :class="[
+          'px-4 py-2 rounded-lg border-2',
+          currentPage === page - 1
+            ? 'border-primary-500 bg-primary-500 text-white'
+            : 'border-neutral-200 hover:border-primary-500'
+        ]"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <!-- Next button -->
+        <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages - 1"
+            class="px-3 py-2 rounded-lg border-2 border-neutral-200
+             disabled:opacity-50 disabled:cursor-not-allowed
+             hover:border-primary-500 transition-colors"
+        >
+          Next
+        </button>
+      </nav>
+    </div>
   </div>
 </template>
 
@@ -119,7 +189,7 @@ import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import type { Product } from "../types/product";
-import { Search, Loader2, ShoppingCart } from 'lucide-vue-next';
+import { Search, Loader2, ShoppingCart, ArrowUp, ArrowDown } from 'lucide-vue-next';
 
 const router = useRouter();
 const loading = ref(true);
@@ -129,25 +199,53 @@ const authStore = useAuthStore();
 const products = ref<Product[]>([]);
 const quantities: { [key: number]: number } = reactive({});
 const isAddingToCart: { [key: number]: boolean } = reactive({});
+const searchTerm = ref('');
+const searchTimeout = ref<number | null>(null);
 
 // Keep track of images that failed to load to prevent infinite loops
 const failedImages = new Set<string>()
 
-// Yet to implement
+// Sorting state
 const sortField = ref('createdAt');
+const sortDir = ref('desc');
 
-// IMPLEMENT: Function to handle sort field changes
-function handleSortChange() {
-  //currentPage.value = 0; // Reset to first page when sorting changes
-  //fetchOrders();
+// Pagination state
+const currentPage = ref(0);
+const pageSize = ref(8);
+const totalPages = ref(0);
+const totalElements = ref(0);
+
+// Debounced search function to prevent too many API calls
+function handleSearch() {
+  // Clear any existing timeout
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+
+  // Set new timeout
+  searchTimeout.value = window.setTimeout(() => {
+    currentPage.value = 0; // Reset to first page when searching
+    fetchProducts();
+  }, 300); // Wait 300ms after user stops typing
 }
 
-onMounted(async () => {
+// Function to fetch products with and search
+async function fetchProducts() {
+  loading.value = true;
   try {
-    const response = await api.get('/api/products/public');
-    products.value = response.data.content;
+    const response = await api.get('/api/products/public', {
+      params: {
+        page: currentPage.value,
+        size: pageSize.value,
+        sort: `${sortField.value},${sortDir.value}`,
+        search: searchTerm.value || undefined // Only include if not empty
+      }
+    });
 
-    // Initialize quantities for each product
+    products.value = response.data.content;
+    totalPages.value = response.data.totalPages;
+    totalElements.value = response.data.totalElements;
+
     products.value.forEach(product => {
       quantities[product.id] = 1;
       isAddingToCart[product.id] = false;
@@ -157,6 +255,41 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+}
+
+// Pagination controls
+function goToPage(page: number) {
+  currentPage.value = page;
+  fetchProducts();
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value - 1) {
+    currentPage.value++;
+    fetchProducts();
+  }
+}
+
+function previousPage() {
+  if (currentPage.value > 0) {
+    currentPage.value--;
+    fetchProducts();
+  }
+}
+
+// Function to handle sort field changes
+function handleSortChange() {
+  fetchProducts();
+}
+
+// Function to toggle sort direction
+function toggleSortDirection() {
+  sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  fetchProducts();
+}
+
+onMounted(async () => {
+  await fetchProducts();
 });
 
 async function addToCart(product: Product) {
@@ -194,7 +327,7 @@ function getProductImageUrl(imageUrl: string | null): string {
   return `${import.meta.env.VITE_API_URL}${imageUrl}`
 }
 
-function handleImageError(event: Event) {
+function handleImageError(event: Event, productId: number) {
   const img = event.target as HTMLImageElement
   const currentSrc = img.src
 

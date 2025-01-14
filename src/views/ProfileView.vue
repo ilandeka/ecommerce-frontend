@@ -73,10 +73,10 @@
               <select
                   v-model="sortField"
                   @change="handleSortChange"
-                  class="block w-40 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gold-500 focus:border-gold-500 rounded-md"
+                  class="block w-40 pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-gold-500 focus:border-gold-500 rounded-md"
               >
-                <option value="createdAt">Order Date</option>
-                <option value="total">Total Amount</option>
+                <option value="createdAt">Date</option>
+                <option value="total">Amount</option>
                 <option value="status">Status</option>
               </select>
 

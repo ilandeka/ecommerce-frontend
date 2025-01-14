@@ -191,7 +191,7 @@
 
       <!-- Settings Tab -->
       <div v-if="activeTab === 'settings'" class="bg-white rounded-xl shadow-sm p-6">
-        <h2 class="text-xl font-bold text-neutral-900 mb-6">Change Password</h2>
+        <h2 class="text-xl font-semibold text-neutral-900 mb-6">Change Password</h2>
         <form @submit.prevent="handlePasswordChange" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-neutral-700">Current Password</label>
@@ -247,7 +247,8 @@
       <!-- Admin Dashboard Tab -->
       <div v-if="activeTab === 'admin'" class="space-y-6">
         <div class="bg-white rounded-xl shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-neutral-900 mb-4">Product Management</h3>
+          <h2 class="text-xl font-semibold text-neutral-900 mb-6">Product Management</h2>
+          <ProductForm />
           <button
               @click="showProductModal = true"
               class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
@@ -350,16 +351,17 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue';
-import {ArrowDown, ArrowUp, Loader2, Package, Plus, User} from 'lucide-vue-next';
-import {useToast} from '../composables/useToast';
-import {useAuthStore} from '../stores/auth';
-import {orderService} from '../services/order.service';
-import {profileService} from '../services/profile.service';
+import { computed, onMounted, ref, watch } from 'vue';
+import { ArrowDown, ArrowUp, Loader2, Package, Plus, User } from 'lucide-vue-next';
+import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/auth';
+import { orderService } from '../services/order.service';
+import { profileService } from '../services/profile.service';
 import api from '../services/api';
 import ImageUpload from '../components/ImageUpload.vue';
 import Modal from '../components/Modal.vue';
-import type {Order} from '../types/order';
+import type { Order } from '../types/order';
+import ProductForm from '../components/ProductForm.vue'
 
 const authStore = useAuthStore();
 const { showToast } = useToast();
@@ -416,7 +418,7 @@ async function handleProductSubmit() {
       formData.append('image', productImage.value);
     }
 
-    await api.post('/products', formData, {
+    await api.post('/api/products', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

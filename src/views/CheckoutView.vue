@@ -222,7 +222,7 @@ async function handleShippingSubmit() {
 
   loading.value = true;
   try {
-    const response = await api.post('/orders/checkout', form.value);
+    const response = await api.post('/api/orders/checkout', form.value);
 
     // Check if we have a valid orderId in the response
     if (!response.data.orderId) {

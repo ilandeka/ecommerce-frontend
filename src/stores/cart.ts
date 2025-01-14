@@ -11,7 +11,7 @@ export const useCartStore = defineStore('cart', () => {
     async function fetchCart() {
         loading.value = true;
         try {
-            const response = await api.get('/cart');
+            const response = await api.get('/api/cart');
             cartItems.value = response.data.items;
             total.value = response.data.total;
         } catch (error) {
@@ -23,7 +23,7 @@ export const useCartStore = defineStore('cart', () => {
 
     async function addToCart(productId: number, quantity: number) {
         try {
-            const response = await api.post('/cart/add', { productId, quantity });
+            const response = await api.post('/api/cart/add', { productId, quantity });
             cartItems.value = response.data.items;
             total.value = response.data.total;
             return true;
@@ -36,7 +36,7 @@ export const useCartStore = defineStore('cart', () => {
 
     async function updateCartItem(productId: number, quantity: number) {
         try {
-            const response = await api.put('/cart/items', { productId, quantity });
+            const response = await api.put('/api/cart/items', { productId, quantity });
             cartItems.value = response.data.items;
             total.value = response.data.total;
             return true;
@@ -48,7 +48,7 @@ export const useCartStore = defineStore('cart', () => {
 
     async function removeFromCart(productId: number) {
         try {
-            const response = await api.delete(`/cart/items/${productId}`);
+            const response = await api.delete(`/api/cart/items/${productId}`);
             cartItems.value = response.data.items;
             total.value = response.data.total;
             return true;
@@ -61,7 +61,7 @@ export const useCartStore = defineStore('cart', () => {
     async function clearCart() {
         try {
             // Make API call to clear the cart in the backend
-            await api.post('/cart/clear');
+            await api.post('/api/cart/clear');
             // Clear the frontend state
             cartItems.value = [];
             total.value = 0;

@@ -33,7 +33,7 @@ api.interceptors.response.use(
                 }
 
                 // Try to get new access token
-                const response = await api.post('/auth/refresh', { refreshToken });
+                const response = await api.post('/api/auth/refresh', { refreshToken });
                 const { accessToken } = response.data;
 
                 // Save new token

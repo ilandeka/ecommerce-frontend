@@ -56,10 +56,10 @@
           <!-- Product Image -->
           <div class="aspect-w-1 aspect-h-1 bg-neutral-100 relative overflow-hidden">
             <img
-                :src="product.imageUrl || '/static/images/default-product.jpg'"
+                :src="getProductImageUrl(product.imageUrl)"
                 :alt="product.name"
+                @error="(e) => handleImageError(e, product.id)"
                 class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500"
-
             />
 
             <!-- Status Badge -->
@@ -129,6 +129,10 @@ const authStore = useAuthStore();
 const products = ref<Product[]>([]);
 const quantities: { [key: number]: number } = reactive({});
 const isAddingToCart: { [key: number]: boolean } = reactive({});
+
+// Keep track of images that failed to load to prevent infinite loops
+const failedImages = new Set<string>()
+
 // Yet to implement
 const sortField = ref('createdAt');
 
@@ -140,8 +144,9 @@ function handleSortChange() {
 
 onMounted(async () => {
   try {
-    const response = await api.get('/products/public');
+    const response = await api.get('/api/products/public');
     products.value = response.data.content;
+
     // Initialize quantities for each product
     products.value.forEach(product => {
       quantities[product.id] = 1;
@@ -174,10 +179,30 @@ async function addToCart(product: Product) {
   }
 }
 
+function getProductImageUrl(imageUrl: string | null): string {
+  // If no image URL or default image path, use the backend URL for default image
+  if (!imageUrl || imageUrl === '/images/default-product.jpg') {
+    return `${import.meta.env.VITE_API_URL}/images/default-product.jpg`
+  }
+
+  // For uploaded images, use full API URL
+  if (imageUrl.startsWith('/uploads/')) {
+    return `${import.meta.env.VITE_API_URL}${imageUrl}`
+  }
+
+  // For any other case, include the API URL
+  return `${import.meta.env.VITE_API_URL}${imageUrl}`
+}
+
 function handleImageError(event: Event) {
-  // If the image fails to load, fallback to default
-  const img = event.target as HTMLImageElement;
-  img.src = '/images/default-product.jpg';
+  const img = event.target as HTMLImageElement
+  const currentSrc = img.src
+
+  // Only try default image once
+  if (!failedImages.has(currentSrc)) {
+    failedImages.add(currentSrc)
+    img.src = `${import.meta.env.VITE_API_URL}/images/default-product.jpg`
+  }
 }
 </script>
 

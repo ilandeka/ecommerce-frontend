@@ -1,7 +1,7 @@
-import {defineStore} from 'pinia'
-import {onMounted, ref} from 'vue'
-import type {AuthResponse, User} from '../types/auth'
-import {authService} from '../services/auth.service'
+import { defineStore } from 'pinia'
+import { onMounted, ref } from 'vue'
+import type { AuthResponse, User } from '../types/auth'
+import { authService } from '../services/auth.service'
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null);
@@ -36,8 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function login(email: string, password: string) {
-        const response = await authService.login({ email, password });
+    async function login(credentials: { email: string; password: string; rememberMe: boolean }) {
+        const response = await authService.login(credentials);
         setAuthData(response);
     }
 
@@ -98,45 +98,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     /**
-     * Properly parse roles from various formats into a clean array
-     * This ensures consistent role handling regardless of input format
+     * Parse roles from various input formats into a clean array of validated roles
+     * @param roles - Can be an array of roles, a string representation of roles, or undefined
+     * @returns Array of validated role strings
      */
-    function parseRoles(roles: string[] | string): string[] {
+    function parseRoles(roles: unknown): string[] {
+        // If no roles provided, return empty array
+        if (!roles) return [];
 
-        // If we get a string that looks like an array
-        if (typeof roles === 'string' && roles.startsWith('[')) {
-            try {
-                // First, try to parse it as a JSON array
-                const parsed = JSON.parse(roles);
-                if (Array.isArray(parsed)) {
-                    return parsed;
-                }
-                // If that fails, do manual parsing
-                return roles
-                    .replace('[', '')
-                    .replace(']', '')
-                    .split(',')
-                    .map(role => role.trim());
-            } catch {
-                // If JSON parsing fails, do manual parsing
-                return roles
-                    .replace('[', '')
-                    .replace(']', '')
-                    .split(',')
-                    .map(role => role.trim());
-            }
-        }
-
-        // If it's already an array, just return it
+        // Handle array input
         if (Array.isArray(roles)) {
-            return roles;
+            return roles.filter(role => isValidRole(String(role)));
         }
 
-        // If it's a single string role
+        // Handle string input
         if (typeof roles === 'string') {
-            return [roles];
+            // If the string looks like an array (e.g., "[ROLE_USER, ROLE_ADMIN]")
+            if (roles.startsWith('[') && roles.endsWith(']')) {
+                try {
+                    // Attempt to parse as JSON
+                    const parsed = JSON.parse(roles);
+                    if (Array.isArray(parsed)) {
+                        return parsed.filter(role => isValidRole(String(role)));
+                    }
+                } catch {
+                    // If JSON parsing fails, fall back to string splitting
+                    return roles
+                        .slice(1, -1)  // Remove brackets
+                        .split(',')
+                        .map(role => role.trim())
+                        .filter(isValidRole);
+                }
+            }
+
+            // Handle single role string
+            return isValidRole(roles) ? [roles] : [];
         }
 
+        // Log unexpected input for debugging
         console.warn('Unexpected roles format:', roles);
         return [];
     }
@@ -146,9 +145,19 @@ export const useAuthStore = defineStore('auth', () => {
      * This prevents injection of malicious role strings
      */
     function isValidRole(role: string): boolean {
-        // Only allow specific valid roles
-        const validRoles = ['ROLE_USER', 'ROLE_ADMIN'];
-        return validRoles.includes(role);
+        // Define valid roles explicitly
+        const validRoles = new Set(['ROLE_USER', 'ROLE_ADMIN']);
+
+        // Clean the role string before validation
+        const cleanedRole = role.trim().toUpperCase();
+
+        // Check if it's a valid role
+        return validRoles.has(cleanedRole);
+    }
+
+    // Add a type guard for checking admin role specifically
+    function isAdmin(): boolean {
+        return hasRole('ROLE_ADMIN');
     }
 
     // Initialize auth state when store is created
@@ -163,6 +172,7 @@ export const useAuthStore = defineStore('auth', () => {
         register,
         logout,
         checkAuth,
-        hasRole
+        hasRole,
+        isAdmin
     };
 });

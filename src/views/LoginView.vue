@@ -45,10 +45,15 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <input
+                  v-model="rememberMe"
                   type="checkbox"
-                  class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  id="remember-me"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-600
+               focus:ring-primary-500"
               />
-              <label class="ml-2 block text-sm text-gray-900">Remember me</label>
+              <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                Remember me
+              </label>
             </div>
 
             <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-500">
@@ -85,6 +90,7 @@ const authStore = useAuthStore();
 const { showToast } = useToast();
 
 const loading = ref(false);
+const rememberMe = ref(false);
 
 const form = reactive({
   email: '',
@@ -94,7 +100,11 @@ const form = reactive({
 async function handleSubmit() {
   loading.value = true;
   try {
-    await authStore.login(form.email, form.password);
+    await authStore.login({
+      email: form.email,
+      password: form.password,
+      rememberMe: rememberMe.value
+    });
     showToast('Login successful', 'success');
     await router.push('/');
   } catch (error: any) {

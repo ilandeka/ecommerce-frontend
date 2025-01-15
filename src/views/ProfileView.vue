@@ -404,10 +404,8 @@ const productForm = ref({
   available: true
 });
 
-// Compute if user is admin
-const isAdmin = computed(() => {
-  return authStore.hasRole('ROLE_ADMIN');
-});
+// Check if user is admin
+const isAdmin = computed(() => authStore.isAdmin());
 
 async function handleProductSubmit() {
   submitting.value = true;

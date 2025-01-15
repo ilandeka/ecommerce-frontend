@@ -13,6 +13,12 @@ export interface RegisterRequest extends LoginRequest {
     fullName: string;
 }
 
+export interface LoginCredentials {
+    email: string;
+    password: string;
+    rememberMe: boolean;
+}
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;

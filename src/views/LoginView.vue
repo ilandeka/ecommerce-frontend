@@ -22,8 +22,7 @@
                   v-model="form.email"
                   type="email"
                   required
-                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                      focus:ring-primary-500 focus:border-primary-500"
+                  class="py-2 pl-10 w-full p-2 border rounded"
               />
             </div>
           </div>
@@ -36,8 +35,7 @@
                   v-model="form.password"
                   type="password"
                   required
-                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                      focus:ring-primary-500 focus:border-primary-500"
+                  class="py-2 pl-10 w-full p-2 border rounded"
               />
             </div>
           </div>
@@ -56,9 +54,12 @@
               </label>
             </div>
 
-            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+            <router-link
+                to="/forgot-password"
+                class="text-sm font-medium text-primary-600 hover:text-primary-500"
+            >
               Forgot password?
-            </a>
+            </router-link>
           </div>
 
           <button

@@ -7,7 +7,7 @@
             v-model="product.name"
             type="text"
             required
-            class="mt-1 py-2 pl-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            class="mt-1 py-2 pl-2 w-full p-2 border rounded"
         />
       </div>
 
@@ -16,7 +16,7 @@
         <textarea
             v-model="product.description"
             required
-            class="mt-1 py-2 pl-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            class="mt-1 py-2 pl-2 w-full p-2 border rounded"
         ></textarea>
       </div>
 
@@ -27,7 +27,7 @@
             type="number"
             step="0.01"
             required
-            class="mt-1 py-2 pl-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            class="mt-1 py-2 pl-2 w-full p-2 border rounded"
         />
       </div>
 
@@ -37,7 +37,7 @@
             v-model="product.stockQuantity"
             type="number"
             required
-            class="mt-1 py-2 pl-2 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            class="mt-1 py-2 pl-2 w-full p-2 border rounded"
         />
       </div>
 

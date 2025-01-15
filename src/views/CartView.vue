@@ -28,10 +28,11 @@
               <!-- Cart item content -->
               <div class="flex items-center space-x-6">
                 <img
-                    :src="item.imageUrl || 'images/default-product.jpg'"
+                    :src="getProductImageUrl(item.imageUrl)"
                     :alt="item.productName"
+                    @error="(e) => handleImageError(e, item.productId)"
                     class="w-24 h-24 object-cover rounded-lg"
-                >
+                />
 
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-gray-900">{{ item.productName }}</h3>
@@ -123,6 +124,9 @@ const cartStore = useCartStore();
 const { showToast } = useToast();
 const loading = ref(false);
 
+// Keep track of images that failed to load to prevent infinite loops
+const failedImages = new Set<string>()
+
 onMounted(async () => {
   try {
     await cartStore.fetchCart();
@@ -172,6 +176,32 @@ async function proceedToCheckout() {
     showToast('Failed to proceed to checkout', 'error');
   } finally {
     loading.value = false;
+  }
+}
+
+function getProductImageUrl(imageUrl: string | null): string {
+  // If no image URL or default image path, use the backend URL for default image
+  if (!imageUrl || imageUrl === '/images/default-product.jpg') {
+    return `${import.meta.env.VITE_API_URL}/images/default-product.jpg`
+  }
+
+  // For uploaded images, use full API URL
+  if (imageUrl.startsWith('/uploads/')) {
+    return `${import.meta.env.VITE_API_URL}${imageUrl}`
+  }
+
+  // For any other case, include the API URL
+  return `${import.meta.env.VITE_API_URL}${imageUrl}`
+}
+
+function handleImageError(event: Event, productId: number) {
+  const img = event.target as HTMLImageElement
+  const currentSrc = img.src
+
+  // Only try default image once
+  if (!failedImages.has(currentSrc)) {
+    failedImages.add(currentSrc)
+    img.src = `${import.meta.env.VITE_API_URL}/images/default-product.jpg`
   }
 }
 </script>

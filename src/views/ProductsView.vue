@@ -24,9 +24,7 @@
                   @input="handleSearch"
                   type="text"
                   placeholder="Search products..."
-                  class="w-full pl-10 pr-4 py-2 border-2 border-neutral-200 rounded-lg
-                   focus:border-primary-500 focus:ring-primary-500
-                   transition-colors duration-200"
+                  class="w-full pl-10 pr-4 py-2 border rounded"
               >
               <Search class="absolute left-3 top-3 h-5 w-5 text-neutral-400" />
 
@@ -49,7 +47,7 @@
             <select
                 v-model="sortField"
                 @change="handleSortChange"
-                class="pl-4 pr-10 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200"
+                class="pl-4 pr-10 py-2 border rounded"
             >
               <option value="createdAt">Latest</option>
               <option value="price">Price</option>
@@ -59,8 +57,7 @@
             <!-- Add sort direction toggle button -->
             <button
                 @click="toggleSortDirection"
-                class="p-2 border-2 border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors duration-200
-           flex items-center justify-center"
+                class="p-2 border rounded hover:bg-neutral-50 transition-colors duration-200 flex items-center justify-center"
                 :title="sortDir === 'asc' ? 'Sort Ascending' : 'Sort Descending'"
             >
               <ArrowUp v-if="sortDir === 'asc'" class="h-5 w-5" />
@@ -142,7 +139,7 @@
         <button
             @click="previousPage"
             :disabled="currentPage === 0"
-            class="px-3 py-2 rounded-lg border-2 border-neutral-200
+            class="px-3 py-2 rounded-lg border border-neutral-200
              disabled:opacity-50 disabled:cursor-not-allowed
              hover:border-primary-500 transition-colors"
         >
@@ -156,7 +153,7 @@
               :key="page"
               @click="goToPage(page - 1)"
               :class="[
-          'px-4 py-2 rounded-lg border-2',
+          'px-4 py-2 rounded-lg border',
           currentPage === page - 1
             ? 'border-primary-500 bg-primary-500 text-white'
             : 'border-neutral-200 hover:border-primary-500'
@@ -170,7 +167,7 @@
         <button
             @click="nextPage"
             :disabled="currentPage === totalPages - 1"
-            class="px-3 py-2 rounded-lg border-2 border-neutral-200
+            class="px-3 py-2 rounded-lg border border-neutral-200
              disabled:opacity-50 disabled:cursor-not-allowed
              hover:border-primary-500 transition-colors"
         >

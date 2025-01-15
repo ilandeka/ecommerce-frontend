@@ -7,27 +7,27 @@ const router = createRouter({
         {
             path: '/',
             component: () => import('../views/HomeView.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: false }
         },
         {
             path: '/login',
             component: () => import('../views/LoginView.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: false }
         },
         {
             path: '/register',
             component: () => import('../views/RegisterView.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: false }
         },
         {
             path: '/products',
             component: () => import('../views/ProductsView.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: false }
         },
         {
             path: '/about',
             component: () => import('../views/AboutView.vue'),
-            meta: { requiresAuth: false },
+            meta: { requiresAuth: false }
         },
         {
             path: '/cart',
@@ -49,6 +49,16 @@ const router = createRouter({
             component: () => import('../views/ProfileView.vue'),
             meta: { requiresAuth: true }
         },
+        {
+            path: '/forgot-password',
+            component: () => import('../views/ForgotPasswordView.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
+            path: '/reset-password',
+            component: () => import('../views/ResetPasswordView.vue'),
+            meta: { requiresAuth: false }
+        }
     ],
 });
 

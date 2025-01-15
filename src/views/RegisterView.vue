@@ -22,8 +22,7 @@
                   v-model="form.fullName"
                   type="text"
                   required
-                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                      focus:ring-primary-500 focus:border-primary-500"
+                  class="py-2 pl-10 w-full p-2 border rounded"
               />
             </div>
           </div>
@@ -36,8 +35,7 @@
                   v-model="form.email"
                   type="email"
                   required
-                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                      focus:ring-primary-500 focus:border-primary-500"
+                  class="py-2 pl-10 w-full p-2 border rounded"
               />
             </div>
           </div>
@@ -51,8 +49,7 @@
                   type="password"
                   required
                   minlength="8"
-                  class="py-2 pl-10 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                      focus:ring-primary-500 focus:border-primary-500"
+                  class="py-2 pl-10 w-full p-2 border rounded"
               />
             </div>
           </div>

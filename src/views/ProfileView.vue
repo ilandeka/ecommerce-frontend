@@ -199,8 +199,7 @@
                 v-model="passwordForm.currentPassword"
                 type="password"
                 required
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                     focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                class="mt-1 pl-2 py-2 w-full p-2 border rounded"
             />
           </div>
 
@@ -211,8 +210,7 @@
                 type="password"
                 required
                 minlength="8"
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                     focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                class="mt-1 pl-2 py-2 w-full p-2 border rounded"
             />
           </div>
 
@@ -223,8 +221,7 @@
                 type="password"
                 required
                 minlength="8"
-                class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                     focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                class="mt-1 pl-2 py-2 w-full p-2 border rounded"
             />
           </div>
 
@@ -251,7 +248,7 @@
           <ProductForm />
           <button
               @click="showProductModal = true"
-              class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
+              class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg
                  hover:bg-primary-700 transition-colors"
           >
             <Plus class="w-5 h-5 mr-2" />

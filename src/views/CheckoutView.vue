@@ -54,8 +54,7 @@
                     v-model="form.fullName"
                     type="text"
                     required
-                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                         focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    class="mt-1 pl-2 py-2 w-full border rounded"
                 />
               </div>
               <div>
@@ -64,8 +63,7 @@
                     v-model="form.address"
                     type="text"
                     required
-                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                         focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    class="mt-1 pl-2 py-2 w-full border rounded"
                 />
               </div>
 
@@ -76,8 +74,7 @@
                       v-model="form.city"
                       type="text"
                       required
-                      class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                         focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      class="mt-1 pl-2 py-2 w-full border rounded"
                   />
                 </div>
                 <div>
@@ -86,8 +83,7 @@
                       v-model="form.state"
                       type="text"
                       required
-                      class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                         focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      class="mt-1 pl-2 py-2 w-full border rounded"
                   />
                 </div>
               </div>
@@ -98,8 +94,7 @@
                     v-model="form.zipCode"
                     type="text"
                     required
-                    class="mt-1 pl-2 py-2 block w-full rounded-lg border-2 border-neutral-300 shadow-sm
-                         focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    class="mt-1 pl-2 py-2 w-full border rounded"
                 />
               </div>
 

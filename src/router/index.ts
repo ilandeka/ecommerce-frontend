@@ -12,12 +12,12 @@ const router = createRouter({
         {
             path: '/login',
             component: () => import('../views/LoginView.vue'),
-            meta: { requiresAuth: false }
+            meta: { requiresAuth: false, requiresGuest: true }
         },
         {
             path: '/register',
             component: () => import('../views/RegisterView.vue'),
-            meta: { requiresAuth: false }
+            meta: { requiresAuth: false, requiresGuest: true }
         },
         {
             path: '/products',
@@ -52,7 +52,7 @@ const router = createRouter({
         {
             path: '/forgot-password',
             component: () => import('../views/ForgotPasswordView.vue'),
-            meta: { requiresAuth: false }
+            meta: { requiresAuth: false, requiresGuest: true }
         },
         {
             path: '/reset-password',
@@ -62,19 +62,28 @@ const router = createRouter({
     ],
 });
 
-router.beforeEach((_to, _from, next) => {
+router.beforeEach(async (_to, _from, next) => {
     const authStore = useAuthStore();
 
-    if (_to.meta.requiresAuth && !authStore.isAuthenticated) {
-        next('/login');
-    } else if (
-        (_to.path === '/login' || _to.path === '/register') &&
-        authStore.isAuthenticated
-    ) {
-        next('/');
-    } else {
-        next();
+    // Force authentication check before proceeding
+    await authStore.checkAuth();
+
+    // If authenticated and trying to access guest routes
+    if (_to.meta.requiresGuest && authStore.isAuthenticated) {
+        next({path: '/'});
+        return;
     }
+
+    // If needs authentication and not authenticated
+    if (_to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next({
+            path: '/login',
+            query: {redirect: _to.fullPath}
+        });
+        return;
+    }
+
+    next();
 });
 
 export default router;

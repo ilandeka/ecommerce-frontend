@@ -49,8 +49,8 @@
                 to="/profile"
                 class="group flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-primary-800 transition-all duration-200"
             >
-              <User class="w-5 h-5 text-neutral-100 group-hover:text-primary-300" />
-              <span class="text-neutral-100 group-hover:text-primary-300">{{ authStore.user?.fullName }}</span>
+              <User class="w-5 h-5 text-neutral-100" />
+              <span class="text-neutral-100">{{ authStore.user?.fullName }}</span>
             </router-link>
 
             <button

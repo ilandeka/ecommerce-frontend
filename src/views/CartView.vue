@@ -30,7 +30,7 @@
                 <img
                     :src="getProductImageUrl(item.imageUrl)"
                     :alt="item.productName"
-                    @error="(e) => handleImageError(e, item.productId)"
+                    @error="handleImageError"
                     class="w-24 h-24 object-cover rounded-lg"
                 />
 
@@ -194,7 +194,7 @@ function getProductImageUrl(imageUrl: string | null): string {
   return `${import.meta.env.VITE_API_URL}${imageUrl}`
 }
 
-function handleImageError(event: Event, productId: number) {
+function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
   const currentSrc = img.src
 

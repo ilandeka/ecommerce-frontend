@@ -3,6 +3,7 @@
     <Navbar />
     <ToastContainer />
     <router-view></router-view>
+    <Footer />
   </div>
 </template>
 
@@ -11,6 +12,7 @@ import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import Navbar from './components/NavBar.vue'
 import ToastContainer from './components/ToastContainer.vue'
+import Footer from './components/Footer.vue'
 
 const authStore = useAuthStore();
 

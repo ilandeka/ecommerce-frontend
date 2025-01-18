@@ -82,7 +82,7 @@
             <img
                 :src="getProductImageUrl(product.imageUrl)"
                 :alt="product.name"
-                @error="(e) => handleImageError(e, product.id)"
+                @error="handleImageError"
                 class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500"
             />
 
@@ -132,8 +132,9 @@
         <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
       </div>
     </div>
+
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="my-6 flex justify-center">
+    <div v-if="totalPages > 1" class="flex justify-center pb-8">
       <nav class="flex items-center gap-2">
         <!-- Previous button -->
         <button
@@ -324,7 +325,7 @@ function getProductImageUrl(imageUrl: string | null): string {
   return `${import.meta.env.VITE_API_URL}${imageUrl}`
 }
 
-function handleImageError(event: Event, productId: number) {
+function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement
   const currentSrc = img.src
 

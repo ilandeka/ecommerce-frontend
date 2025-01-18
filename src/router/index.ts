@@ -30,6 +30,11 @@ const router = createRouter({
             meta: { requiresAuth: false }
         },
         {
+            path: '/contact',
+            component: () => import('../views/ContactView.vue'),
+            meta: { requiresAuth: false }
+        },
+        {
             path: '/cart',
             component: () => import('../views/CartView.vue'),
             meta: { requiresAuth: true }

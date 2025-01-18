@@ -95,7 +95,7 @@
 
         <!-- Orders List -->
         <div v-for="order in orders" :key="order.id"
-             class="bg-white rounded-xl shadow-sm overflow-hidden">
+             class="border bg-white rounded-xl shadow-sm overflow-hidden">
           <!-- Order Header -->
           <div class="border-b border-neutral-200 p-6">
             <div class="flex items-center justify-between">
@@ -168,25 +168,25 @@
             Browse Products
           </router-link>
         </div>
+      </div>
 
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="flex justify-center mt-6">
-          <nav class="flex items-center space-x-2">
-            <button
-                v-for="page in totalPages"
-                :key="page"
-                @click="currentPage = page - 1"
-                :class="[
-                'px-3 py-1 rounded-md text-sm font-medium',
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="flex justify-center mt-8">
+        <nav class="flex items-center space-x-2">
+          <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="currentPage = page - 1"
+              :class="[
+                'px-4 py-2 rounded-lg border',
                 currentPage === page - 1
-                  ? 'bg-black text-gold-500'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'border-primary-500 bg-primary-500 text-white'
+                  : 'border-neutral-200 hover:border-primary-500'
               ]"
-            >
-              {{ page }}
-            </button>
-          </nav>
-        </div>
+          >
+            {{ page }}
+          </button>
+        </nav>
       </div>
 
       <!-- Settings Tab -->
@@ -371,8 +371,13 @@ const loading = ref(false);
 const orders = ref<Order[]>([]);
 const profile = ref<Profile | null>(null);
 const passwordError = ref('');
+
+// Pagination state
 const currentPage = ref(0);
+const pageSize = ref(5);
 const totalPages = ref(0);
+
+// Sorting state
 const sortField = ref('createdAt');
 const sortDirection = ref<'asc' | 'desc'>('desc');
 
@@ -466,7 +471,7 @@ async function fetchOrders() {
   try {
     const response = await orderService.getMyOrders(
         currentPage.value,
-        10, // page size
+        pageSize.value,
         `${sortField.value},${sortDirection.value}`
     );
     orders.value = response.content;

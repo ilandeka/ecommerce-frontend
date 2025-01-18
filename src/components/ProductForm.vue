@@ -82,13 +82,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
 import api from "../services/api"
 import { Loader2 } from "lucide-vue-next"
 import { useToast } from '../composables/useToast'
 
 // Initialize stores and composables
-const authStore = useAuthStore()
 const { showToast } = useToast()
 
 // Form state
@@ -131,8 +129,7 @@ const handleSubmit = async () => {
     // Send request
     await api.post('/api/products', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${authStore.accessToken}`
+        'Content-Type': 'multipart/form-data'
       }
     });
 // Reset form

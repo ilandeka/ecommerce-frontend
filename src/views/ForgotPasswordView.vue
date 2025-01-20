@@ -3,7 +3,7 @@
     <div class="max-w-md mx-auto">
       <div class="bg-white rounded-xl shadow-sm p-8">
         <div class="text-center mb-8">
-          <Key class="w-12 h-12 text-primary-600 mx-auto" />
+          <KeyRound class="w-12 h-12 text-primary-600 mx-auto" />
           <h2 class="mt-4 text-3xl font-bold text-neutral-900">Forgot Password</h2>
           <p class="mt-2 text-neutral-600">
             Enter your email address and we'll send you a link to reset your password.
@@ -19,7 +19,7 @@
                   v-model="email"
                   type="email"
                   required
-                  class="py-2 pl-10 w-full p-2 border rounded"
+                  class="py-2 pl-10 w-full border rounded"
               />
             </div>
           </div>
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from '../composables/useToast';
-import { Mail, Key, Loader2 } from 'lucide-vue-next';
+import { Mail, KeyRound , Loader2 } from 'lucide-vue-next';
 import api from '../services/api';
 
 const email = ref('');

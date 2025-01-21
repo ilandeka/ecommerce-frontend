@@ -4,7 +4,11 @@
     <div v-if="error" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
       <div class="flex">
         <AlertCircle class="w-5 h-5 text-red-500 mr-3" />
-        <p class="text-red-800">{{ error }}</p>
+        <div class="ml-3">
+          <p class="text-sm text-red-800">
+            {{ error }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -24,13 +28,10 @@
     <!-- Payment Security Notice -->
     <div class="mb-6 p-4 bg-primary-50 rounded-lg">
       <div class="flex items-start">
-        <Lock class="w-5 h-5 text-primary-600 mt-0.5 mr-3" />
-        <div>
-          <p class="text-sm text-primary-800 font-medium mb-1">Secure Payment</p>
-          <p class="text-sm text-primary-600">
-            Your payment information is encrypted and secure. We never store your card details.
-          </p>
-        </div>
+        <InfoIcon class="w-5 h-5 text-primary-600 mr-3" />
+        <p class="text-sm text-primary-600">
+          Your payment information is encrypted and secure. We never store your full card details.
+        </p>
       </div>
     </div>
 
@@ -44,7 +45,7 @@
       <!-- Payment Element Container -->
       <div class="mb-6">
         <div ref="paymentElementRef"
-             class="p-4 border-2 border-neutral-200 rounded-lg">
+             class="p-4 border border-neutral-200 rounded-lg">
         </div>
       </div>
 
@@ -71,9 +72,9 @@
 
       <!-- Payment Methods Accepted -->
       <div class="mt-6 flex items-center justify-center space-x-4">
-        <img src="" alt="Visa" class="h-8 opacity-75" />
-        <img src="" alt="Mastercard" class="h-8 opacity-75" />
-        <img src="" alt="American Express" class="h-8 opacity-75" />
+        <img src="@/assets/images/cards/visa.svg" alt="Visa" class="h-8" />
+        <img src="@/assets/images/cards/mastercard.svg" alt="Mastercard" class="h-8" />
+        <img src="@/assets/images/cards/amex.svg" alt="American Express" class="h-8" />
       </div>
     </form>
   </div>
@@ -84,12 +85,13 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 import { useCartStore } from '../stores/cart';
-import { paymentService } from '../services/payment.service';
-import { AlertTriangle, AlertCircle, Lock, Loader2 } from 'lucide-vue-next';
+import { paymentService } from "../services/payment.service";
+import { AlertTriangle, AlertCircle, Lock, InfoIcon, Loader2 } from 'lucide-vue-next';
 
 // Define props with TypeScript - orderId is required and must be a number
 const props = defineProps<{
   orderId: number;
+  clientSecret: string;
 }>();
 
 // Define events that this component can emit
@@ -123,12 +125,9 @@ async function initializeStripe() {
       showToast('Failed to initialize Stripe.','error');
     }
 
-    // Create a payment intent for this order
-    const { clientSecret } = await paymentService.createPaymentIntent(props.orderId);
-
     // Create and configure Stripe Elements
     elements.value = stripe.value.elements({
-      clientSecret,
+      clientSecret: props.clientSecret,
       appearance: {
         theme: 'stripe',
         variables: {
@@ -181,10 +180,31 @@ async function handleSubmit() {
     });
 
     if (submitError) {
-      // Handle payment error
-      error.value = submitError.message;
-      emit('paymentError', submitError);
-      showToast(submitError.message || 'Payment failed', 'error');
+      if (submitError.type === 'card_error') {
+        // Handle payment error
+        error.value = submitError.message;
+        emit('paymentError', submitError);
+        showToast(submitError.message || 'Payment failed', 'error');
+      } else {
+        // Try to get a new payment intent
+        try {
+          const { clientSecret: newClientSecret } = await paymentService.retryPayment(props.orderId);
+
+          // Reinitialize elements with new client secret
+          elements.value = stripe.value.elements({
+            clientSecret: newClientSecret,
+            appearance: elements.value.getAppearance()
+          });
+
+          const paymentElement = elements.value.create('payment');
+          paymentElement.mount(paymentElementRef.value);
+
+          showToast('Please try your payment again', 'info');
+        } catch (retryError) {
+          emit('paymentError', retryError);
+          showToast('Failed to retry payment. Please try again later.', 'error');
+        }
+      }
     } else {
       // Handle successful payment
       emit('paymentSuccess');

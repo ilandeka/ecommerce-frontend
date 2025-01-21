@@ -46,7 +46,7 @@
           <!-- Shipping Form -->
           <div v-if="currentStep === 1" class="bg-white rounded-xl shadow-sm p-6">
             <h2 class="text-xl font-bold text-neutral-900 mb-6">Shipping Information</h2>
-            <form @submit.prevent="handleShippingSubmit" class="space-y-4">
+            <form @submit.prevent="handleCheckoutSubmit" class="space-y-4">
               <!-- Form fields with updated styling -->
               <div>
                 <label class="block text-sm font-medium text-neutral-700">Full Name</label>
@@ -113,13 +113,21 @@
 
           <!-- Payment Form -->
           <div v-if="currentStep === 2" class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-xl font-bold text-neutral-900 mb-6">Payment Information</h2>
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-bold text-neutral-900">Payment Information</h2>
+              <div class="flex items-center space-x-2">
+                <LockIcon class="w-5 h-5 text-green-500" />
+                <span class="text-sm text-gray-600">Secure Payment</span>
+              </div>
+            </div>
+
             <div v-if="orderId === null" class="text-accent-600">
               Order not found. Please try again.
             </div>
             <PaymentForm
                 v-else
                 :order-id="orderId"
+                :client-secret="clientSecret"
                 @payment-success="handlePaymentSuccess"
                 @payment-error="handlePaymentError"
             />
@@ -179,8 +187,8 @@ import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useToast } from '../composables/useToast';
 import PaymentForm from '../components/PaymentForm.vue';
-import api from '../services/api';
-import { Check, Loader2, ArrowRight } from 'lucide-vue-next';
+import { paymentService } from "../services/payment.service";
+import { Check, Loader2, ArrowRight, LockIcon } from 'lucide-vue-next';
 
 const router = useRouter();
 const cartStore = useCartStore();
@@ -188,6 +196,7 @@ const { showToast } = useToast();
 const loading = ref(false);
 const orderId = ref<number | null>(null);
 const currentStep = ref(1);
+const clientSecret = ref('');
 
 const form = ref({
   fullName: '',
@@ -209,7 +218,7 @@ onMounted(async () => {
   await cartStore.fetchCart();
 });
 
-async function handleShippingSubmit() {
+async function handleCheckoutSubmit() {
   if (!cartStore.cartItems.length) {
     showToast('Your cart is empty', 'error');
     return;
@@ -217,27 +226,30 @@ async function handleShippingSubmit() {
 
   loading.value = true;
   try {
-    const response = await api.post('/api/orders/checkout', form.value);
+    const response = await paymentService.initiateCheckout(form.value);
 
     // Check if we have a valid orderId in the response
-    if (!response.data.orderId) {
-      showToast('Failed to process checkout. Try, again!', 'error');
+    if (!response.orderId) {
+      showToast('Failed to process checkout try, again', 'error');
     }
 
     // Set the orderId directly - no need for parsing since it's already a number
-    orderId.value = response.data.orderId;
+    orderId.value = response.orderId;
+    // Pass the clientSecret to the PaymentForm
+    clientSecret.value = response.clientSecret;  // Store the client secret
 
     // Only advance to payment step if we have a valid orderId
-    if (orderId.value) {
+    if (orderId.value && clientSecret.value) {
       currentStep.value = 2;
-      showToast('Shipping information saved. Please complete payment.', 'success');
+      showToast('Shipping information saved please complete payment', 'success');
     } else {
-      showToast('Failed to create order. Try, again!', 'error');
+      showToast('Failed to create order try, again', 'error');
     }
   } catch (error: any) {
     console.error('Checkout error:', error);
     showToast(error.message || 'Failed to process checkout', 'error');
     orderId.value = null;
+    clientSecret.value = '';  // Clear client secret on error
   } finally {
     loading.value = false;
   }

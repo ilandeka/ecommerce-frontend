@@ -1,4 +1,25 @@
-import axios from 'axios'
+import axios, {AxiosHeaders} from 'axios'
+
+// Define headers that prevent caching for security-sensitive requests
+const NO_CACHE_HEADERS = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+} as const;
+
+// Helper function to identify authentication-related endpoints
+const isAuthEndpoint = (url: string | undefined): boolean => {
+    if (!url) return false;
+
+    const authPaths = [
+        '/api/auth/login',
+        '/api/auth/register',
+        '/api/auth/me',
+        '/api/auth/refresh',
+        '/api/auth/logout'
+    ];
+    return authPaths.some(path => url.includes(path));
+}
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -7,12 +28,27 @@ const api = axios.create({
     },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor handles both authentication tokens and cache headers
 api.interceptors.request.use((config) => {
+    // Add authentication token if available
     const token = localStorage.getItem('accessToken');
+
+    // Create new headers instance
+    const headers = new AxiosHeaders(config.headers);
+
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        headers.set('Authorization', `Bearer ${token}`);
     }
+
+    // Add no-cache headers for authentication endpoints
+    if (isAuthEndpoint(config.url)) {
+        Object.entries(NO_CACHE_HEADERS).forEach(([key, value]) => {
+            headers.set(key, value);
+        });
+    }
+
+    config.headers = headers;
+
     return config;
 });
 
@@ -33,14 +69,25 @@ api.interceptors.response.use(
                 }
 
                 // Try to get new access token
-                const response = await api.post('/api/auth/refresh', { refreshToken });
+                const response = await api.post('/api/auth/refresh',
+                    { refreshToken },
+                    { headers: NO_CACHE_HEADERS }
+                );
                 const { accessToken } = response.data;
 
                 // Save new token
                 localStorage.setItem('accessToken', accessToken);
 
-                // Update the failed request's authorization header
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                if (originalRequest.headers){
+                    // Update the failed request's authorization header
+                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                    if (isAuthEndpoint(originalRequest.url)) {
+                        originalRequest.headers = {
+                            ...originalRequest.headers,
+                            ...NO_CACHE_HEADERS
+                        };
+                    }
+                }
 
                 // Retry the original request
                 return api(originalRequest);

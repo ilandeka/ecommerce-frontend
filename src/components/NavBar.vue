@@ -6,7 +6,7 @@
         <div class="flex items-center space-x-8">
           <router-link to="/" class="flex items-center space-x-2">
             <ShoppingBag class="w-6 h-6 text-primary-300" />
-            <span class="text-xl font-bold">E-Shop</span>
+            <span class="text-xl font-bold">EShop</span>
           </router-link>
 
           <div class="hidden md:flex items-center space-x-6">

@@ -109,8 +109,7 @@
                 <span :class="[
                   'px-3 py-1 rounded-full text-xs font-medium',
                   {
-                    'bg-primary-100 text-primary-800': order.status === 'PROCESSING',
-                    'bg-accent-100 text-accent-800': order.status === 'DELIVERED',
+                    'bg-accent-100 text-accent-800': order.status === 'COMPLETED',
                     'bg-yellow-100 text-yellow-800': order.status === 'PENDING',
                     'bg-red-100 text-red-800': order.status === 'CANCELLED'
                   }

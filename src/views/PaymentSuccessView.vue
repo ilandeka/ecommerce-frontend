@@ -19,6 +19,11 @@
           >
             Continue Shopping
           </router-link>
+          <div class="text-center">
+            <router-link to="/profile" class="text-primary-600 hover:text-primary-500">
+              Your Orders
+            </router-link>
+          </div>
         </div>
       </div>
     </div>

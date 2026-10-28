@@ -1,0 +1,175 @@
+name: CI/CD
+
+# Pull requests: install and make sure the production build (type check included) works.
+# Pushes to master: the same checks, then build the demo version and publish it to Firebase Hosting
+# (once deploy/gcp/config.env is filled in).
+# Authentication to Google Cloud is keyless (Workload Identity Federation): there is no key or token
+# anywhere in this repository or in GitHub secrets.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Type check and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # "npm run build" is vue-tsc (type check) followed by vite build.
+      - name: Production build
+        run: npm run build
+
+  config:
+    name: Read deployment settings
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.cfg.outputs.enabled }}
+      project_id: ${{ steps.cfg.outputs.project_id }}
+      wif_provider: ${{ steps.cfg.outputs.wif_provider }}
+      deployer_sa: ${{ steps.cfg.outputs.deployer_sa }}
+      site_id: ${{ steps.cfg.outputs.site_id }}
+      site_url: ${{ steps.cfg.outputs.site_url }}
+      api_url: ${{ steps.cfg.outputs.api_url }}
+      stripe_key: ${{ steps.cfg.outputs.stripe_key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: deploy/gcp
+          persist-credentials: false
+      - id: cfg
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          # shellcheck disable=SC1091
+          . deploy/gcp/config.env
+          set +a
+
+          if [ -z "${GCP_PROJECT_ID:-}" ] || [ -z "${GCP_PROJECT_NUMBER:-}" ] || [ -z "${ECOMMERCE_SITE_ID:-}" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::deploy/gcp/config.env is not filled in yet, so nothing is deployed. Run deploy/gcp/bootstrap.sh in the Ecommerce backend repository and commit the values it prints."
+            exit 0
+          fi
+
+          # The demo takes Stripe test payments only.
+          stripe_key="${STRIPE_PUBLISHABLE_KEY:-}"
+          case "$stripe_key" in
+            pk_live_*) echo "::error::STRIPE_PUBLISHABLE_KEY is a live key. The demo only uses test keys (pk_test_...)."; exit 1 ;;
+            "") echo "::warning::STRIPE_PUBLISHABLE_KEY is empty, so checkout cannot show the payment form. Put the pk_test_... key in deploy/gcp/config.env." ;;
+          esac
+
+          region="${GCP_REGION:-europe-west1}"
+          # Cloud Run URLs are predictable: https://<service>-<project number>.<region>.run.app
+          api_origin="${ECOMMERCE_API_URL:-https://ecommerce-api-${GCP_PROJECT_NUMBER}.${region}.run.app}"
+          api_origin="${api_origin%/}"
+          api_origin="${api_origin%/api}"
+
+          {
+            echo "enabled=true"
+            echo "project_id=${GCP_PROJECT_ID}"
+            echo "wif_provider=projects/${GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/providers/github"
+            echo "deployer_sa=gh-deployer@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+            echo "site_id=${ECOMMERCE_SITE_ID}"
+            echo "site_url=https://${ECOMMERCE_SITE_ID}.web.app"
+            echo "api_url=${api_origin}"
+            echo "stripe_key=${stripe_key}"
+          } >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy to Firebase Hosting
+    needs: [test, config]
+    if: needs.config.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-ecommerce-frontend
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PROJECT_ID: ${{ needs.config.outputs.project_id }}
+      SITE_ID: ${{ needs.config.outputs.site_id }}
+      SITE_URL: ${{ needs.config.outputs.site_url }}
+      API_URL: ${{ needs.config.outputs.api_url }}
+      STRIPE_PUBLISHABLE_KEY: ${{ needs.config.outputs.stripe_key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Everything below is a build-time switch for the public demo; none of it is secret.
+      - name: Build the demo version
+        env:
+          VITE_API_URL: ${{ env.API_URL }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ env.STRIPE_PUBLISHABLE_KEY }}
+          VITE_DEMO_MODE: 'true'
+        run: npm run build
+
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ needs.config.outputs.wif_provider }}
+          service_account: ${{ needs.config.outputs.deployer_sa }}
+
+      - name: Publish to Firebase Hosting
+        run: |
+          # firebase.json does not name a site (it comes from deploy/gcp/config.env), so add it for this run only.
+          jq --arg site "$SITE_ID" '.hosting.site = $site' firebase.json > firebase.json.tmp
+          mv firebase.json.tmp firebase.json
+          npx --yes firebase-tools@15.34.1 deploy --only "hosting:${SITE_ID}" --project "$PROJECT_ID" --non-interactive
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          echo "Ecommerce demo: ${SITE_URL}  (API: ${API_URL})" >> "$GITHUB_STEP_SUMMARY"
+
+          check() {
+            local page entry deep pattern='/assets/index-[A-Za-z0-9_-]+\.js'
+            page="$(curl -fsS --max-time 30 "${SITE_URL}/")" || { echo "${SITE_URL} is not reachable yet."; return 1; }
+            grep -q 'id="app"' <<< "$page" || { echo "${SITE_URL} did not return the app shell."; return 1; }
+            # The published bundle must point at the API this run was configured for.
+            [[ "$page" =~ $pattern ]] || { echo "Could not find the main script in ${SITE_URL}."; return 1; }
+            entry="${BASH_REMATCH[0]}"
+            curl -fsS --max-time 30 -o "${RUNNER_TEMP}/entry.js" "${SITE_URL}${entry}" || { echo "${entry} is not reachable yet."; return 1; }
+            grep -qF "$API_URL" "${RUNNER_TEMP}/entry.js" || { echo "The published app does not contain ${API_URL}."; return 1; }
+            # A deep link must serve the app too (single-page-app rewrite), e.g. the link in a password reset email.
+            deep="$(curl -fsS --max-time 30 "${SITE_URL}/reset-password?token=smoke")" || { echo "${SITE_URL}/reset-password is not reachable yet."; return 1; }
+            grep -q 'id="app"' <<< "$deep" || { echo "${SITE_URL}/reset-password does not return the app shell."; return 1; }
+          }
+
+          # A release can take a few seconds to reach every Firebase Hosting edge.
+          for attempt in 1 2 3 4 5 6; do
+            if check; then
+              echo "Published and pointing at ${API_URL}."
+              exit 0
+            fi
+            echo "Not ready (attempt ${attempt}/6), waiting..."
+            sleep 5
+          done
+          echo "::error::The published app did not pass the smoke test. Check the deploy log above."
+          exit 1

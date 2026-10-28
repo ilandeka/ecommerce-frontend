@@ -73,6 +73,23 @@
             <span>{{ loading ? 'Signing in...' : 'Sign in' }}</span>
           </button>
         </form>
+
+        <div v-if="DEMO_MODE" class="mt-6 pt-6 border-t border-neutral-200">
+          <p class="text-sm font-medium text-neutral-700">Try the demo</p>
+          <p class="mt-1 text-sm text-neutral-500">Fill in a demo account, then press Sign in.</p>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <button
+                v-for="account in DEMO_ACCOUNTS"
+                :key="account.email"
+                type="button"
+                @click="fillDemoAccount(account.email, account.password)"
+                class="rounded-lg border border-neutral-300 px-3 py-2 text-left text-sm hover:bg-neutral-50"
+            >
+              <span class="block font-medium text-neutral-900">{{ account.label }}</span>
+              <span class="block text-neutral-500">{{ account.email }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -84,6 +101,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useToast } from '../composables/useToast';
+import { DEMO_MODE, DEMO_ACCOUNTS } from '../constants/demo';
 import { ShoppingBag, Mail, Lock, Loader2 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -97,6 +115,11 @@ const form = reactive({
   email: '',
   password: '',
 });
+
+function fillDemoAccount(email: string, password: string) {
+  form.email = email;
+  form.password = password;
+}
 
 async function handleSubmit() {
   loading.value = true;

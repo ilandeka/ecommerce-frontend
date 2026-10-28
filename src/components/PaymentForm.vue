@@ -35,6 +35,15 @@
       </div>
     </div>
 
+    <!-- Demo: this store runs in Stripe test mode -->
+    <div v-if="DEMO_MODE"
+         class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+      <p class="text-sm text-yellow-800">
+        Demo store: no real payment is made. Use the test card
+        <span class="font-mono font-semibold">{{ TEST_CARD.number }}</span> with {{ TEST_CARD.details }}.
+      </p>
+    </div>
+
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center py-8">
       <Loader2 class="w-8 h-8 animate-spin text-primary-600" />
@@ -86,6 +95,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 import { useCartStore } from '../stores/cart';
 import { paymentService } from "../services/payment.service";
+import { DEMO_MODE, TEST_CARD } from '../constants/demo';
 import { AlertTriangle, AlertCircle, Lock, InfoIcon, Loader2 } from 'lucide-vue-next';
 
 // Define props with TypeScript - orderId is required and must be a number
